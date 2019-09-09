@@ -1,0 +1,100 @@
+#!/bin/bash -e
+#
+# (C) Copyright IBM Corporation 2016.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# S2I assemble script for the 'open-liberty-javaee8' image.
+
+echo "Running s2i assemble with user $USER home $HOME"
+
+if [ -f $S2I_DESTINATION/src/wlp/config/server.xml ]; then
+  cp $S2I_DESTINATION/src/wlp/config/server.xml /config
+else
+  echo "No server.xml found, using default"
+fi
+
+# Source code provided to S2I is at /tmp/src
+LOCAL_SOURCE_DIR=/tmp/src
+
+# Resulting WAR files will be deployed to /opt/ol/wlp/usr/servers/defaultServer/dropins/
+DEPLOY_DIR=/opt/ol/wlp/usr/servers/defaultServer/dropins/
+
+# If a pom.xml is present, this is a normal build scenario
+# so run maven.
+if [ -f "$LOCAL_SOURCE_DIR/pom.xml" ]; then
+
+  pushd $LOCAL_SOURCE_DIR &> /dev/null
+
+  if [ -z "$MAVEN_ARGS" ]; then
+    export MAVEN_ARGS="package -Popenshift -DskipTests"
+  fi
+
+  # Append arguments to MAVEN_ARGS if necessary
+  if [ -n "$MAVEN_ARGS_APPEND" ]; then
+    echo "Maven additional arguments: $MAVEN_ARGS_APPEND"
+    export MAVEN_ARGS="$MAVEN_ARGS $MAVEN_ARGS_APPEND"
+  fi
+  echo "Found pom.xml... attempting to build with 'mvn ${MAVEN_ARGS}'"
+
+  mvn --version
+  mvn $MAVEN_ARGS
+
+  ERR=$?
+  if [ $ERR -ne 0 ]; then
+    echo "Aborting due to error code $ERR from mvn package"
+    exit $ERR
+  fi
+
+
+  #Copy .war file from the source directory
+  echo "Copying built war files into $DEPLOY_DIR for later deployment..."
+  popd &> /dev/null
+else
+  echo "Copying binaries in source directory into $DEPLOY_DIR for later deployment..."
+fi
+
+ls -l /tmp/src
+
+if [ -d $LOCAL_SOURCE_DIR/target ]; then
+  cp  $LOCAL_SOURCE_DIR/target/*.war $DEPLOY_DIR 2>/dev/null || :
+  cp  $LOCAL_SOURCE_DIR/target/*.ear $DEPLOY_DIR 2>/dev/null || :
+  cp  $LOCAL_SOURCE_DIR/target/*.jar $DEPLOY_DIR 2>/dev/null || :
+  cp  $LOCAL_SOURCE_DIR/target/*.rar $DEPLOY_DIR 2>/dev/null || :
+fi
+
+if [ -d $LOCAL_SOURCE_DIR/deployments ]; then
+  cp $LOCAL_SOURCE_DIR/deployments/*.war $DEPLOY_DIR >& /dev/null
+  cp $LOCAL_SOURCE_DIR/deployments/*.ear $DEPLOY_DIR >& /dev/null
+  cp $LOCAL_SOURCE_DIR/deployments/*.jar $DEPLOY_DIR >& /dev/null
+  cp $LOCAL_SOURCE_DIR/deployments/*.rar $DEPLOY_DIR >& /dev/null
+fi
+
+# Copy supporting files from OL directory
+if [ -d $S2I_DESTINATION/src/wlp/usr ]; then
+   cp -R $S2I_DESTINATION/src/wlp/usr /opt/ol/wlp
+fi
+
+# Run configure again to pick up configuration from the environmentf
+echo "whoami: "
+whoami
+
+echo "perms:"
+ls -l /opt/ol/wlp/output
+
+echo "Configuring Server"
+echo "MP: $MP_MONITORING"
+/opt/ol/helpers/build/configure.sh
+
+echo "Application deployment finished! Please start up the Open Liberty container using the following command: docker run -P <name of image>"
+exit $rc

@@ -1,0 +1,233 @@
+#!/bin/bash -e
+READLINK_EXEC="readlink -zf"
+MKTEMP_EXEC="mktemp --suffix=.cid"
+if [[ "$OSTYPE" =~ 'darwin' ]]; then
+  READLINK_EXEC="readlink"
+  MKTEMP_EXEC="mktemp"
+  ! type -a "greadlink" >&"/dev/null" || READLINK_EXEC="greadlink"
+  ! type -a "gmktemp" >&"/dev/null" || MKTEMP_EXEC="gmktemp"
+fi
+
+SCRIPT_DIR=$(dirname $0)
+_dir="$(dirname "${BASH_SOURCE[0]}")"
+test_dir="$($READLINK_EXEC ${_dir} || echo ${_dir})"
+log_file=$test_dir/test.log
+s2i_log_file=$test_dir/s2i.log
+cid_file=$test_dir/test.cid
+
+SNIPPETS_TARGET=/config/configDropins/overrides
+
+# Environment variables used to modify the Open Liberty configuration
+ENABLE_SSL_VAR="-e SSL=true"
+ENABLE_TLS_VAR="-e TLS=true"
+HTTP_ENDPOINT_VAR="-e HTTP_ENDPOINT=true"
+MP_HEALTH_CHECK_VAR="-e MP_HEALTH_CHECK=true"
+MP_MONITORING_VAR="-e MP_MONITORING=true"
+HZ_SESSION_CACHE_CLIENT_VAR="-e HZ_SESSION_CACHE=client"
+HZ_SESSION_CACHE_EMBEDDED_VAR="-e HZ_SESSION_CACHE=embedded"
+IIOP_ENDPOINT_VAR="-e IIOP_ENDPOINT=true"
+JMS_ENDPOINT_VAR="-e JMS_ENDPOINT=true"
+
+# Since we built the image locally, we don't want S2I attempt to pull
+# it from Docker hub
+s2i_args="--pull-policy=never"
+
+test_port=9080
+
+image_exists() {
+  echo "Checking image $1"
+  docker inspect $1 &>/dev/null
+}
+
+
+container_exists() {
+  echo "Checking container $(cat $cid_file)"
+  image_exists $(cat $cid_file)
+}
+
+container_ip() {
+  docker inspect --format='{{(index (index .NetworkSettings.Ports "9080/tcp") 0).HostIp}}' $(cat $cid_file) | sed 's/0.0.0.0/localhost/'
+}
+
+container_port() {
+  docker inspect --format="{{"{{"}}(index .NetworkSettings.Ports \"$test_port/tcp\" 0).HostPort {{"}}"}}" "$(cat "${cid_file}")"
+}
+
+
+prepare() {
+  app=$1
+  shift
+  if ! image_exists ${IMAGE_NAME}:${IMAGE_VERSION}; then
+    echo "ERROR: The image ${IMAGE_NAME}:${IMAGE_VERSION} must exist before this script is executed."
+    exit 1
+  fi
+  s2i build ${s2i_args} ${test_dir}/$app ${IMAGE_NAME}:${IMAGE_VERSION} ${IMAGE_NAME}-testapp $@ >& $s2i_log_file
+}
+
+run_test_application() {
+  docker run $@ --rm -p ${test_port}:${test_port} --cidfile=${cid_file} ${IMAGE_NAME}-testapp >& $log_file
+}
+
+run_test_mp_monitoring() {
+  docker exec $(cat $cid_file) cat $SNIPPETS_TARGET/mp-monitoring.xml
+  check_result $?
+}
+
+run_test_mp_health_check() {
+  docker exec $(cat $cid_file) cat $SNIPPETS_TARGET/mp-health-check.xml
+  check_result $?
+}
+
+run_test_jms_endpoint() {
+  docker exec $(cat $cid_file) cat $SNIPPETS_TARGET/jms-endpoint.xml
+  check_result $?
+}
+
+run_test_jms_endpoint_ssl() {
+  docker exec $(cat $cid_file) cat $SNIPPETS_TARGET/jms-ssl-endpoint.xml
+  check_result $?
+}
+
+cleanup() {
+  echo "Cleanup for test, cid $(cat $cid_file)"
+  if container_exists; then  
+    if [[ $1 != "0" ]]; then
+      echo "Viewing docker logs"
+      docker logs $(cat $cid_file)
+    fi
+    echo "Stopping container $(cat $cid_file)"
+    docker stop $(cat $cid_file) || true
+  fi
+  if image_exists ${IMAGE_NAME}-testapp; then
+    docker rmi -f ${IMAGE_NAME}-testapp
+  fi
+  if image_exists ${RUNTIME_IMAGE_NAME}-testapp; then
+    docker rmi -f ${RUNTIME_IMAGE_NAME}-testapp
+  fi
+  rm -rf ${test_dir}/test-app/.git
+  rm -f $cid_file
+}
+
+cleanupFinal() {
+  rm -f $log_file
+  rm -f $s2i_log_file
+}
+
+check_result() {
+  local result="$1"
+  if [[ "$result" != "0" ]]; then
+    cleanup 1
+    echo "S2I image '${IMAGE_NAME}' test FAILED (exit code: ${result}), last container execution log file in $log_file"
+    exit $result
+  fi
+}
+
+wait_for_cid() {
+  local max_attempts=30
+  local sleep_time=1
+  local attempt=1
+  local result=1
+  while [ $attempt -le $max_attempts ]; do
+    [ -f $cid_file ] && [ -s $cid_file ] && break
+    echo "Waiting for container start..."
+    attempt=$(( $attempt + 1 ))
+    sleep $sleep_time
+  done
+}
+
+run_test_usage() {
+  s2i usage ${s2i_args} ${IMAGE_NAME}:${IMAGE_VERSION} &>/dev/null
+}
+
+test_connection() {
+  local max_attempts=30
+  local sleep_time=1
+  local attempt=1
+  local result=1
+  while [ $attempt -le $max_attempts ]; do
+    echo "Sending GET request to http://$(container_ip):${test_port}/"
+    set +e
+    response_code=$(curl -s -w %{http_code} -o /dev/null http://$(container_ip):${test_port}/)
+    status=$?
+    set -e
+    if [ $status -eq 0 ]; then
+      if [ $response_code -eq 200 ]; then
+        result=0
+      fi
+      break
+    fi
+    attempt=$(( $attempt + 1 ))
+    sleep $sleep_time
+  done
+  return $result
+}
+
+
+
+echo "Testing image $IMAGE_NAME"
+echo "Last s2i execution is logged in $s2i_log_file"
+echo "Last container execution is logged in $log_file"
+
+echo "### Test deployment in default server."
+
+prepare test-app
+
+# Verify the 'usage' script is working properly
+run_test_usage
+check_result $?
+
+# Verify that the HTTP connection can be established to test application container
+run_test_application &
+
+# Wait for the container to write it's CID file
+#
+wait_for_cid
+
+test_connection
+check_result $?
+
+cleanup 0
+
+# CONFIGURATION TESTS
+# These are simple tests that make sure that environment variables passed to s2i result
+# in configuration files being copied to configDropins
+
+echo "MicroProfile Monitoring Configuration Test"
+prepare test-app $MP_MONITORING_VAR
+run_test_application  &
+wait_for_cid
+test_connection
+check_result $?
+run_test_mp_monitoring
+cleanup 0
+
+echo "MicroProfile Health Configuration Test"
+prepare test-app $MP_HEALTH_CHECK_VAR
+run_test_application &
+wait_for_cid
+test_connection
+check_result $?
+run_test_mp_health_check
+cleanup 0
+
+echo "JMS Endpoint, No SSL Configuration Test"
+prepare test-app $JMS_ENDPOINT_VAR
+run_test_application &
+wait_for_cid
+test_connection
+check_result $?
+run_test_jms_endpoint
+cleanup 0
+
+echo "JMS Endpoint, SSL Configuration Test"
+prepare test-app $JMS_ENDPOINT_VAR $ENABLE_SSL_VAR
+run_test_application &
+wait_for_cid
+test_connection
+check_result $?
+run_test_jms_endpoint_ssl
+
+cleanupFinal
+
+# END CONFIGURATION TESTS
+echo "Test SUCCESSFUL"

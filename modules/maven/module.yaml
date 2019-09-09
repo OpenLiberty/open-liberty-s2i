@@ -1,0 +1,15 @@
+schema_version: 1
+
+name: maven
+version: 1.0
+description: "Module used to install Maven 3.5.4"
+
+# Defined artifacts that are used to build the image
+artifacts:
+  - name: maven.tar.gz
+    url: https://www.apache.org/dist/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz 
+    sha512: 2a803f578f341e164f6753e410413d16ab60fabe31dc491d1fe35c984a5cce696bc71f57757d4538fe7738be04065a216f3ebad4ef7e0ce1bb4c51bc36d6be86
+
+execute:
+  - script: install.sh
+

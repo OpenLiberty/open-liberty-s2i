@@ -1,0 +1,32 @@
+#! /bin/bash -e
+#
+# (C) Copyright IBM Corporation 2016.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# inform the user how to use the image
+cat <<EOF
+This is an S2I Open Liberty base image that is responsible for consuming a JEE project and deploying it onto a WebSphere Liberty application server.
+To use it, install S2I from: https://github.com/openshift/source-to-image.
+
+Sample invocation:
+
+s2i build https://github.com/WASdev/sample.ferret.git open-liberty libertys2itest
+
+You can then run the resulting image via
+docker run -p libertys2itest
+
+Details:
+If a pom.xml file is present in the source directory then the project is built with maven and the output in target will be copied into the Liberty deployments directory /config/dropins/.
+If a pom.xml file is not present then the source code will be coppied instead. The WebSphere Liberty start script located in /opt/ibm/wlp/bin/ is called when the container is run which in turn checks to see if an application is present in the /dropins folder then runs it.
+EOF

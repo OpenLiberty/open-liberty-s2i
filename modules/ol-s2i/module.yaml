@@ -1,0 +1,16 @@
+schema_version: 1
+
+name: ol-s2i
+version: 1.0
+description: "Module used to install s2i scripts for Open Liberty"
+
+labels:
+- name: io.openshift.s2i.scripts-url
+  value: &imgLocation image:///usr/local/s2i
+- name: io.s2i.scripts-url
+  value: *imgLocation
+execute:
+- script: configure.sh
+
+
+
