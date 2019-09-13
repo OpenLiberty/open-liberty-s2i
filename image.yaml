@@ -28,9 +28,9 @@ envs:
   - name: S2I_DESTINATION
     value: "/tmp"
   - name: JAVA_HOME
-    value: /opt/ibm/java
+    value: /opt/java/openjdk
   - name: PATH
-    value: /opt/ibm/java/bin:$PATH
+    value: /opt/java/openjdk/bin:$PATH
 
 packages:
     manager: microdnf
@@ -41,7 +41,6 @@ modules:
 
   # Install selected modules (in order)
   install:
-    - name: ibmjdk8
     - name: maven
     - name: ol-s2i
 

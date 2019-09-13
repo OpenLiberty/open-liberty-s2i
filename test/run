@@ -111,6 +111,7 @@ cleanup() {
 cleanupFinal() {
   rm -f $log_file
   rm -f $s2i_log_file
+  rm -f $cid_file
 }
 
 check_result() {
@@ -226,6 +227,7 @@ wait_for_cid
 test_connection
 check_result $?
 run_test_jms_endpoint_ssl
+cleanup 0
 
 cleanupFinal
 

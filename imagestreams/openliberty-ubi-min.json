@@ -11,7 +11,7 @@
     "tags": [
       {
         "annotations": {
-          "description": "Build and run Open Liberty applications on Red Hat Universal Base Image 7. For more information about using this builder image, including OpenShift considerations, see TODO.\n\nWARNING: By selecting this tag, your application will automatically update to use the latest version of Open Liberty available on OpenShift, including major versions updates.",
+          "description": "Build and run Open Liberty applications on Red Hat Universal Base Image 8. For more information about using this builder image, including OpenShift considerations, see https://github.com/OpenLiberty/open-liberty-s2i/blob/master/README.md.\n\nWARNING: By selecting this tag, your application will automatically update to use the latest version of Open Liberty available on OpenShift, including major versions updates.",
           "iconClass": "icon-openliberty",
           "openshift.io/display-name": "Open Liberty (Latest)",
           "openshift.io/provider-display-name": "IBM",
@@ -21,7 +21,7 @@
         },
         "from": {
           "kind": "DockerImage",
-          "name": "dockerhub.io/openliberty/open-liberty-s2i:latest"
+          "name": "docker.io/openliberty/open-liberty-s2i:latest"
         },
         "referencePolicy": {
           "type": "Local"

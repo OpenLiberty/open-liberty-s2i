@@ -46,7 +46,9 @@ if [ -f "$LOCAL_SOURCE_DIR/pom.xml" ]; then
     export MAVEN_ARGS="$MAVEN_ARGS $MAVEN_ARGS_APPEND"
   fi
   echo "Found pom.xml... attempting to build with 'mvn ${MAVEN_ARGS}'"
-
+  
+  # Working around issue with maven and specifying shared class cache options
+  export IBM_JAVA_OPTIONS=""
   mvn --version
   mvn $MAVEN_ARGS
 
@@ -85,15 +87,9 @@ if [ -d $S2I_DESTINATION/src/wlp/usr ]; then
    cp -R $S2I_DESTINATION/src/wlp/usr /opt/ol/wlp
 fi
 
-# Run configure again to pick up configuration from the environmentf
-echo "whoami: "
-whoami
-
-echo "perms:"
-ls -l /opt/ol/wlp/output
+# Run configure again to pick up configuration from the environment
 
 echo "Configuring Server"
-echo "MP: $MP_MONITORING"
 /opt/ol/helpers/build/configure.sh
 
 echo "Application deployment finished! Please start up the Open Liberty container using the following command: docker run -P <name of image>"
