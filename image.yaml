@@ -1,8 +1,8 @@
 schema_version: 1
 
-name: openliberty/ol-javaee8-ubi-openshift
+name: openliberty/open-liberty-s2i
 version: 1.0
-from: openliberty/open-liberty:javaee8-ubi-min
+from: bhdaniel/openliberty:ol-javaee8-ubi-jdk
 description: "Open Libety UBI image with javaee-8"
 labels:
     - name: io.k8s.description

@@ -47,8 +47,6 @@ if [ -f "$LOCAL_SOURCE_DIR/pom.xml" ]; then
   fi
   echo "Found pom.xml... attempting to build with 'mvn ${MAVEN_ARGS}'"
   
-  # Working around issue with maven and specifying shared class cache options
-  export IBM_JAVA_OPTIONS=""
   mvn --version
   mvn $MAVEN_ARGS
 

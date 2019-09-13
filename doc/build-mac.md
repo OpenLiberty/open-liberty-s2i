@@ -29,5 +29,5 @@ For example, to build the builder image:
 ```
 $ cekit build docker
 $ cd target/image
-$ docker build -t openliberty/ol-javaee8-ubi-openshift:latest .
+$ docker build -t openliberty/openliberty-s2i:latest .
 ```
