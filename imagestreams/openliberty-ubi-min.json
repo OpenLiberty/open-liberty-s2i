@@ -21,12 +21,12 @@
         },
         "from": {
           "kind": "DockerImage",
-          "name": "docker.io/openliberty/open-liberty-s2i:latest"
+          "name": "docker.io/openliberty/open-liberty-s2i:19.0.0.6"
         },
         "referencePolicy": {
           "type": "Local"
         },
-        "name": "latest"
+        "name": "19.0.0.6"
       }
     ]
   }
