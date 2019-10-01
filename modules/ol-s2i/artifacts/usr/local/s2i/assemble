@@ -19,9 +19,8 @@
 echo "Running s2i assemble with user $USER home $HOME"
 
 if [ -f $S2I_DESTINATION/src/wlp/config/server.xml ]; then
+  echo "Copying provided server.xml to /config"
   cp $S2I_DESTINATION/src/wlp/config/server.xml /config
-else
-  echo "No server.xml found, using default"
 fi
 
 # Source code provided to S2I is at /tmp/src
@@ -60,11 +59,32 @@ if [ -f "$LOCAL_SOURCE_DIR/pom.xml" ]; then
   #Copy .war file from the source directory
   echo "Copying built war files into $DEPLOY_DIR for later deployment..."
   popd &> /dev/null
+elif [ -f "${LOCAL_SOURCE_DIR}/Dockerfile" ]; then
+  # This is a S2I binary build coming from fabric8-maven-plugin
+  echo "S2I binary build from fabric8-maven-plugin detected"
+  echo "Copying binaries from ${LOCAL_SOURCE_DIR}/maven to ${DEPLOY_DIR} ..."
+  cp  $LOCAL_SOURCE_DIR/maven/*.war $DEPLOY_DIR 2>/dev/null || :
+  cp  $LOCAL_SOURCE_DIR/maven/*.ear $DEPLOY_DIR 2>/dev/null || :
+  cp  $LOCAL_SOURCE_DIR/maven/*.jar $DEPLOY_DIR 2>/dev/null || :
+  cp  $LOCAL_SOURCE_DIR/maven/*.rar $DEPLOY_DIR 2>/dev/null || :
+  
+  if [ -n "${LIBERTY_RUNNABLE_JAR:-}" ]; then
+    echo "Copying runnable jar $LOCAL_SOURCE_DIR/maven/$LIBERTY_RUNNABLE_JAR to /opt/ol/runnable"
+    cp $LOCAL_SOURCE_DIR/maven/$LIBERTY_RUNNABLE_JAR /opt/ol/ol-runnable.jar
+    SKIP_CONFIGURE=true
+  elif [ -f $LOCAL_SOURCE_DIR/maven/src/wlp/config/server.xml ]; then
+    echo "Copying provided server.xml to /config"
+    cp $LOCAL_SOURCE_DIR/maven/src/wlp/config/server.xml /config
+  fi
+  # Copy supporting files from OL directory
+  if [ -d $LOCAL_SOURCE_DIR/maven/src/wlp/usr ]; then
+     cp -R $LOCAL_SOURCE_DIR/maven/src/wlp/usr /opt/ol/wlp
+  fi
+
 else
   echo "Copying binaries in source directory into $DEPLOY_DIR for later deployment..."
 fi
 
-ls -l /tmp/src
 
 if [ -d $LOCAL_SOURCE_DIR/target ]; then
   cp  $LOCAL_SOURCE_DIR/target/*.war $DEPLOY_DIR 2>/dev/null || :
@@ -85,10 +105,12 @@ if [ -d $S2I_DESTINATION/src/wlp/usr ]; then
    cp -R $S2I_DESTINATION/src/wlp/usr /opt/ol/wlp
 fi
 
-# Run configure again to pick up configuration from the environment
+# Run configure again to pick up configuration from the environment (unless we're using a runnable jar)
+if [ -z $SKIP_CONFIGURE ]; then
+  echo "Configuring Server"
+  /opt/ol/helpers/build/configure.sh
+fi
 
-echo "Configuring Server"
-/opt/ol/helpers/build/configure.sh
 
 echo "Application deployment finished! Please start up the Open Liberty container using the following command: docker run -P <name of image>"
 exit $rc

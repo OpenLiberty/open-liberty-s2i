@@ -7,4 +7,11 @@
 #	https://github.com/openshift/source-to-image/blob/master/docs/builder_image.md
 #
 
-/opt/ol/wlp/bin/server run defaultServer
+if [ -f /opt/ol/ol-runnable.jar ]; then
+  # This is a S2I binary build coming from fabric8-maven-plugin.
+  export WLP_JAR_EXTRACT_DIR=/opt/ol/wlp/wlpExtract
+  java -jar /opt/ol/ol-runnable.jar
+else
+  /opt/ol/wlp/bin/server run defaultServer
+fi
+
