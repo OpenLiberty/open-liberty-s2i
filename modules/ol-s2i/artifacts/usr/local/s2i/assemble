@@ -18,16 +18,23 @@
 
 echo "Running s2i assemble with user $USER home $HOME"
 
-if [ -f $S2I_DESTINATION/src/wlp/config/server.xml ]; then
-  echo "Copying provided server.xml to /config"
-  cp $S2I_DESTINATION/src/wlp/config/server.xml /config
-fi
-
 # Source code provided to S2I is at /tmp/src
 LOCAL_SOURCE_DIR=/tmp/src
 
+SERVER_DIR=/opt/ol/wlp/usr/servers/defaultServer
+
+# the subdirectory within LOCAL_SOURCE_DIR from where we should copy build
+# artifacts (*.war, *.jar)
+ARTIFACT_DIR=${ARTIFACT_DIR:-target}
+
 # Resulting WAR files will be deployed to /opt/ol/wlp/usr/servers/defaultServer/dropins/
-DEPLOY_DIR=/opt/ol/wlp/usr/servers/defaultServer/dropins/
+if [ -z "$DEPLOY_TO_APPS" ]; then
+  DEPLOY_DIR=$SERVER_DIR/dropins/
+else
+  DEPLOY_DIR=$SERVER_DIR/apps/
+fi
+
+echo "Artifacts Directory: $ARTIFACT_DIR"
 
 # If a pom.xml is present, this is a normal build scenario
 # so run maven.
@@ -55,58 +62,44 @@ if [ -f "$LOCAL_SOURCE_DIR/pom.xml" ]; then
     exit $ERR
   fi
 
-
-  #Copy .war file from the source directory
-  echo "Copying built war files into $DEPLOY_DIR for later deployment..."
   popd &> /dev/null
-elif [ -f "${LOCAL_SOURCE_DIR}/Dockerfile" ]; then
-  # This is a S2I binary build coming from fabric8-maven-plugin
+fi
+
+
+if [ -f "${LOCAL_SOURCE_DIR}/Dockerfile" ]; then
+ # This is an S2I binary build coming from fabric8-maven-plugin
   echo "S2I binary build from fabric8-maven-plugin detected"
-  echo "Copying binaries from ${LOCAL_SOURCE_DIR}/maven to ${DEPLOY_DIR} ..."
-  cp  $LOCAL_SOURCE_DIR/maven/*.war $DEPLOY_DIR 2>/dev/null || :
-  cp  $LOCAL_SOURCE_DIR/maven/*.ear $DEPLOY_DIR 2>/dev/null || :
-  cp  $LOCAL_SOURCE_DIR/maven/*.jar $DEPLOY_DIR 2>/dev/null || :
-  cp  $LOCAL_SOURCE_DIR/maven/*.rar $DEPLOY_DIR 2>/dev/null || :
-  
-  if [ -n "${LIBERTY_RUNNABLE_JAR:-}" ]; then
-    echo "Copying runnable jar $LOCAL_SOURCE_DIR/maven/$LIBERTY_RUNNABLE_JAR to /opt/ol/runnable"
-    cp $LOCAL_SOURCE_DIR/maven/$LIBERTY_RUNNABLE_JAR /opt/ol/ol-runnable.jar
-    SKIP_CONFIGURE=true
-  elif [ -f $LOCAL_SOURCE_DIR/maven/src/wlp/config/server.xml ]; then
-    echo "Copying provided server.xml to /config"
-    cp $LOCAL_SOURCE_DIR/maven/src/wlp/config/server.xml /config
-  fi
-  # Copy supporting files from OL directory
-  if [ -d $LOCAL_SOURCE_DIR/maven/src/wlp/usr ]; then
-     cp -R $LOCAL_SOURCE_DIR/maven/src/wlp/usr /opt/ol/wlp
-  fi
+  LOCAL_SOURCE_DIR=$LOCAL_SOURCE_DIR/maven
 
+  OUTPUT_DIR=$LOCAL_SOURCE_DIR
 else
-  echo "Copying binaries in source directory into $DEPLOY_DIR for later deployment..."
+  OUTPUT_DIR=$LOCAL_SOURCE_DIR/$ARTIFACT_DIR
 fi
 
+ 
+if [ -n "${LIBERTY_RUNNABLE_JAR:-}" ]; then
+    echo "Copying runnable jar $OUTPUT_DIR/$LIBERTY_RUNNABLE_JAR to /opt/ol/runnable"
+    cp $OUTPUT_DIR/$LIBERTY_RUNNABLE_JAR /opt/ol/ol-runnable.jar
+else
+  if [ -f $LOCAL_SOURCE_DIR/src/wlp/config/server.xml ]; then
+    echo "Copying provided server.xml to $SERVER_DIR"
+    cp $LOCAL_SOURCE_DIR/src/wlp/config/server.xml $SERVER_DIR
+  fi
 
-if [ -d $LOCAL_SOURCE_DIR/target ]; then
-  cp  $LOCAL_SOURCE_DIR/target/*.war $DEPLOY_DIR 2>/dev/null || :
-  cp  $LOCAL_SOURCE_DIR/target/*.ear $DEPLOY_DIR 2>/dev/null || :
-  cp  $LOCAL_SOURCE_DIR/target/*.jar $DEPLOY_DIR 2>/dev/null || :
-  cp  $LOCAL_SOURCE_DIR/target/*.rar $DEPLOY_DIR 2>/dev/null || :
-fi
+  # Copy supporting files from OL directory
+  if [ -d $LOCAL_SOURCE_DIR/src/wlp/usr ]; then
+    cp -R $LOCAL_SOURCE_DIR/src/wlp/usr /opt/ol/wlp
+  fi
 
-if [ -d $LOCAL_SOURCE_DIR/deployments ]; then
-  cp $LOCAL_SOURCE_DIR/deployments/*.war $DEPLOY_DIR >& /dev/null
-  cp $LOCAL_SOURCE_DIR/deployments/*.ear $DEPLOY_DIR >& /dev/null
-  cp $LOCAL_SOURCE_DIR/deployments/*.jar $DEPLOY_DIR >& /dev/null
-  cp $LOCAL_SOURCE_DIR/deployments/*.rar $DEPLOY_DIR >& /dev/null
-fi
 
-# Copy supporting files from OL directory
-if [ -d $S2I_DESTINATION/src/wlp/usr ]; then
-   cp -R $S2I_DESTINATION/src/wlp/usr /opt/ol/wlp
-fi
+  if [ -d $OUTPUT_DIR ]; then
+    cp  $OUTPUT_DIR/*.war $DEPLOY_DIR 2>/dev/null || :
+    cp  $OUTPUT_DIR/*.ear $DEPLOY_DIR 2>/dev/null || :
+    cp  $OUTPUT_DIR/*.jar $DEPLOY_DIR 2>/dev/null || :
+    cp  $OUTPUT_DIR/*.rar $DEPLOY_DIR 2>/dev/null || :
+  fi
 
 # Run configure again to pick up configuration from the environment (unless we're using a runnable jar)
-if [ -z $SKIP_CONFIGURE ]; then
   echo "Configuring Server"
   /opt/ol/helpers/build/configure.sh
 fi

@@ -10,7 +10,25 @@
 if [ -f /opt/ol/ol-runnable.jar ]; then
   # This is a S2I binary build coming from fabric8-maven-plugin.
   export WLP_JAR_EXTRACT_DIR=/opt/ol/wlp/wlpExtract
-  java -jar /opt/ol/ol-runnable.jar
+  JAR_DEBUG_OPTS=""
+  if [ -n "${JAVA_DEBUG:-}" ]; then
+    if [ -z "${WLP_DEBUG_ADDRESS}" ]; then        
+          WLP_DEBUG_ADDRESS=7777
+    fi
+    if [ -z "${WLP_DEBUG_SUSPEND}" ]; then      
+          WLP_DEBUG_SUSPEND=y
+    fi
+    if [ "${WLP_DEBUG_REMOTE}" = "y" ]; then        
+          WLP_DEBUG_REMOTE_HOST="0.0.0.0:"
+    else
+          WLP_DEBUG_REMOTE_HOST=""
+    fi
+    JAR_DEBUG_OPTS="-Dwas.debug.mode=true -Dcom.ibm.websphere.ras.inject.at.transform=true -Dsun.reflect.noInflation=true -agentlib:jdwp=transport=dt_socket,server=y,suspend=${WLP_DEBUG_SUSPEND},address=${WLP_DEBUG_REMOTE_HOST}${WLP_DEBUG_ADDRESS}"
+  fi
+
+  java -jar $JAR_DEBUG_OPTS /opt/ol/ol-runnable.jar
+elif [ -n "${JAVA_DEBUG:-}" ]; then 
+  /opt/ol/wlp/bin/server debug defaultServer
 else
   /opt/ol/wlp/bin/server run defaultServer
 fi
