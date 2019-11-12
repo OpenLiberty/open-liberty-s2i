@@ -15,8 +15,8 @@ Mac OSX installation and build [tips](doc/build-mac.md).
 Cloning the repository:
 
 ```
-$ git clone https://github.com/openliberty/openliberty-s2i
-$ cd openliberty-s2i
+$ git clone https://github.com/openliberty/open-liberty-s2i
+$ cd open-liberty-s2i
 ```
 
 Building the Open Liberty S2I builder:
