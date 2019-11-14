@@ -40,7 +40,7 @@
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <outputDirectory>target</outputDirectory>
-              		  <warName>sample</warName>
+              		  <warName>rest-http</warName>
                 </configuration>
             </plugin>
         </plugins>

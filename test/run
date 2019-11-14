@@ -27,12 +27,14 @@ HZ_SESSION_CACHE_CLIENT_VAR="-e HZ_SESSION_CACHE=client"
 HZ_SESSION_CACHE_EMBEDDED_VAR="-e HZ_SESSION_CACHE=embedded"
 IIOP_ENDPOINT_VAR="-e IIOP_ENDPOINT=true"
 JMS_ENDPOINT_VAR="-e JMS_ENDPOINT=true"
+DEPLOY_TO_APPS_VAR="-e DEPLOY_TO_APPS=true"
 
 # Since we built the image locally, we don't want S2I attempt to pull
 # it from Docker hub
 s2i_args="--pull-policy=never"
 
 test_port=9080
+test_root=sample
 
 image_exists() {
   echo "Checking image $1"
@@ -146,20 +148,22 @@ test_connection() {
   local attempt=1
   local result=1
   while [ $attempt -le $max_attempts ]; do
-    echo "Sending GET request to http://$(container_ip):${test_port}/"
+    echo "Sending GET request to http://$(container_ip):${test_port}/${test_root}/  [$attempt]"
     set +e
-    response_code=$(curl -s -w %{http_code} -o /dev/null http://$(container_ip):${test_port}/)
+    response_code=$(curl -s -w %{http_code} -o /dev/null http://$(container_ip):${test_port}/${test_root}/)
     status=$?
     set -e
     if [ $status -eq 0 ]; then
+      echo "Response Code $response_code"
       if [ $response_code -eq 200 ]; then
         result=0
+        break
       fi
-      break
     fi
     attempt=$(( $attempt + 1 ))
     sleep $sleep_time
   done
+  cat $log_file
   return $result
 }
 
@@ -169,13 +173,28 @@ echo "Testing image $IMAGE_NAME"
 echo "Last s2i execution is logged in $s2i_log_file"
 echo "Last container execution is logged in $log_file"
 
-echo "### Test deployment in default server."
-
-prepare test-app
+echo "### Test deployment in default server using the apps directory and a provided server.xml."
+prepare test-app-rest $DEPLOY_TO_APPS_VAR
 
 # Verify the 'usage' script is working properly
 run_test_usage
 check_result $?
+
+# Verify that the HTTP connection can be established to test application container
+run_test_application &
+
+# Wait for the container to write it's CID file
+#
+wait_for_cid
+
+test_connection
+check_result $?
+
+cleanup 0
+cleanupFinal
+
+echo "### Test deployment in default server with dropins app."
+prepare test-app
 
 # Verify that the HTTP connection can be established to test application container
 run_test_application &
@@ -230,6 +249,8 @@ run_test_jms_endpoint_ssl
 cleanup 0
 
 cleanupFinal
+
+
 
 # END CONFIGURATION TESTS
 echo "Test SUCCESSFUL"
