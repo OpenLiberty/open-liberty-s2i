@@ -1,0 +1,14 @@
+<server description="Open Liberty REST-0 example">
+
+  <featureManager>
+      <feature>jaxrs-2.1</feature>
+      <!-- Required for Arquillian tests -->     
+      <feature>localConnector-1.0</feature>
+  </featureManager>
+
+  <httpEndpoint httpPort="9080" httpsPort="9443"
+                id="defaultHttpEndpoint" host="*" />
+
+  <webApplication location="rest-http.war" contextRoot="sample"/>
+   
+</server>

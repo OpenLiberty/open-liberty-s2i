@@ -81,9 +81,9 @@ if [ -n "${LIBERTY_RUNNABLE_JAR:-}" ]; then
     echo "Copying runnable jar $OUTPUT_DIR/$LIBERTY_RUNNABLE_JAR to /opt/ol/runnable"
     cp $OUTPUT_DIR/$LIBERTY_RUNNABLE_JAR /opt/ol/ol-runnable.jar
 else
-  if [ -f $LOCAL_SOURCE_DIR/src/wlp/config/server.xml ]; then
+  if [ -f $LOCAL_SOURCE_DIR/src/main/liberty/config/server.xml ]; then
     echo "Copying provided server.xml to $SERVER_DIR"
-    cp $LOCAL_SOURCE_DIR/src/wlp/config/server.xml $SERVER_DIR
+    cp $LOCAL_SOURCE_DIR/src/main/liberty/config/server.xml $SERVER_DIR
   fi
 
   # Copy supporting files from OL directory
