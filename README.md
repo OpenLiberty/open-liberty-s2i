@@ -46,6 +46,23 @@ The tests for this repository check basic functionality of a JEE application bui
 ```
 $ make test
 ```
+
+S2I Build Behavior
+--------------------
+
+If a pom.xml file is found in the root of the source tree, it will be built using maven. 
+
+If the root of the source tree contains a file named `Dockerfile` and a directory named `maven` then the build will assume that the source tree is the output of the [fabric8 maven plugin](https://github.com/fabric8io/fabric8-maven-plugin)
+
+If the environment variable `LIBERTY_RUNNABLE_JAR` is set, the build will attempt to copy that file to `/opt/ol/ol-runnable.jar`. At runtime, S2I will run that jar file instead of running the normal Liberty instance.
+
+If a `server.xml` file exists in the directory `src/main/liberty/config` it will be copied to the config directory of the Liberty instance. 
+
+If the directory `src/wlp/usr` exists, it will be copied to the `wlp` directory o the Libert instance. 
+
+All `WAR`, `JAR`, `EAR`, and `RAR` files from the build will be copied to either the `apps` or `dropins` directory the Liberty instance depending on the value of the `DEPLOY_TO_APPS` environment variable. 
+
+
 Environment variables to be used at s2i build time
 --------------------------------------------------
 The following environment variables can be passed to the S2I build process to customize Open Liberty. More information on these variables and the functions they enable can be found at https://github.com/OpenLiberty/ci.docker
