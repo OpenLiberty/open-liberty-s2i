@@ -14,6 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# re-use maven artifacts 
+
+if [ -d /tmp/artifacts/.m2 ]; then
+  echo "---> Restoring maven artifacts..."
+  mv /tmp/artifacts/.m2 ${HOME}/
+fi
+
 # S2I assemble script for the 'open-liberty-javaee8' image.
 
 echo "Running s2i assemble with user $USER home $HOME"
