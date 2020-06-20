@@ -53,6 +53,16 @@ if [ -f "$LOCAL_SOURCE_DIR/pom.xml" ]; then
     export MAVEN_ARGS="package -Popenshift -DskipTests"
   fi
 
+ if [ -n "$MAVEN_MIRROR_URL" ]; then
+    xml="    <mirror>\
+      <id>mirror.default</id>\
+      <url>$MAVEN_MIRROR_URL</url>\
+      <mirrorOf>external:*</mirrorOf>\
+    </mirror>"
+    echo "Using maven mirror: $MAVEN_MIRROR_URL"
+    sed -i "s|<!-- ### configured mirrors ### -->|$xml|" $HOME/.m2/settings.xml
+  fi
+
   # Append arguments to MAVEN_ARGS if necessary
   if [ -n "$MAVEN_ARGS_APPEND" ]; then
     echo "Maven additional arguments: $MAVEN_ARGS_APPEND"

@@ -67,6 +67,8 @@ Environment variables to be used at s2i build time
 --------------------------------------------------
 The following environment variables can be passed to the S2I build process to customize Open Liberty. More information on these variables and the functions they enable can be found at https://github.com/OpenLiberty/ci.docker
 
+* `MAVEN_MIRROR_URL`
+  * Description: Use the specified maven mirror to resolve dependencies
 * `DEPLOY_TO_APPS`
   * Description: When true, applicaton binaries will be copied to `apps` instead of `dropins`
 * `HTTP_ENDPOINT`
