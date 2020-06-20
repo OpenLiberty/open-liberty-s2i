@@ -4,6 +4,8 @@ Building on Mac
 * Installing Docker
  * Install [Docker Desktop](https://hub.docker.com/editions/community/docker-ce-desktop-mac)
 
+* Install [Homebrew](https://brew.sh) (required by cekit)
+
 * Installing Python (required by cekit)
  * Install [python 3](https://www.python.org)
  * Install virtualenv: `sudo pip3 install virtualenv`
@@ -13,6 +15,7 @@ Building on Mac
 
 * Installing cekit and dependencies. NB: Be sure to install a cekit version >= to 3.1.0.
   * `pip3 install cekit`
+  * `pip3 install odcs`
   * `pip3 install docker`
   * `pip3 install docker_squash`
 
