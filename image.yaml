@@ -2,8 +2,8 @@ schema_version: 1
 
 name: openliberty/open-liberty-s2i
 version: 1.0
-from: bhdaniel/ol-javaee8-ubi-jdk:19.0.0.12
-description: "Open Liberty UBI image with javaee-8"
+from: openliberty/open-liberty:20.0.0.3-full-java8-openj9-ubi
+description: "Open Liberty UBI image with OpenJDK8"
 labels:
     - name: io.k8s.description
       value: "Open Liberty S2I Image"
