@@ -71,6 +71,12 @@ The following environment variables can be passed to the S2I build process to cu
   * Description: Use the specified maven mirror to resolve dependencies
 * `DEPLOY_TO_APPS`
   * Description: When true, applicaton binaries will be copied to `apps` instead of `dropins`
+* `TLS` or `SSL` (SSL is deprecated)
+  *  Description: Enable Transport Security in Liberty by adding the `transportSecurity-1.0` feature (includes support for SSL).
+  *  XML Snippet Location:  [keystore.xml](https://github.com/OpenLiberty/ci.docker/tree/master/common/helpers/build/configuration_snippets/keystore.xml).
+
+The following environment variables are now deprecated. Support will be removed in the future. 
+
 * `HTTP_ENDPOINT`
   *  Description: Add configuration properties for an HTTP endpoint.
   *  XML Snippet Location: [http-ssl-endpoint.xml](https://github.com/OpenLiberty/ci.docker/tree/master/common/helpers/build/configuration_snippets/http-ssl-endpoint.xml) when SSL is enabled. Otherwise [http-endpoint.xml](https://github.com/OpenLiberty/ci.docker/tree/master/common/helpers/build/configuration_snippets/http-endpoint.xml)
@@ -81,9 +87,6 @@ The following environment variables can be passed to the S2I build process to cu
   *  Description: Monitor the server runtime environment and application metrics by using Liberty features `mpMetrics-1.1` (implements [Microprofile Metrics](https://microprofile.io/project/eclipse/microprofile-metrics)) and `monitor-1.0`.
   *  XML Snippet Location: [mp-monitoring.xml](https://github.com/OpenLiberty/ci.docker/tree/master/common/helpers/build/configuration_snippets/mp-monitoring.xml)
   *  Note: With this option, `/metrics` endpoint is configured without authentication to support the environments that do not yet support scraping secured endpoints.
-* `TLS` or `SSL` (SSL is being deprecated)
-  *  Description: Enable Transport Security in Liberty by adding the `transportSecurity-1.0` feature (includes support for SSL).
-  *  XML Snippet Location:  [keystore.xml](https://github.com/OpenLiberty/ci.docker/tree/master/common/helpers/build/configuration_snippets/keystore.xml).
 * `IIOP_ENDPOINT`
   *  Description: Add configuration properties for an IIOP endpoint.
   *  XML Snippet Location: [iiop-ssl-endpoint.xml](https://github.com/OpenLiberty/ci.docker/tree/master/common/helpers/build/configuration_snippets/iiop-ssl-endpoint.xml) when SSL is enabled. Otherwise, [iiop-endpoint.xml](https://github.com/OpenLiberty/ci.docker/tree/master/common/helpers/build/configuration_snippets/iiop-endpoint.xml).
@@ -91,13 +94,7 @@ The following environment variables can be passed to the S2I build process to cu
 * `JMS_ENDPOINT`
   *  Description: Add configuration properties for an JMS endpoint.
   *  XML Snippet Location: [jms-ssl-endpoint.xml](https://github.com/OpenLiberty/ci.docker/tree/master/common/helpers/build/configuration_snippets/jms-ssl-endpoint.xml) when SSL is enabled. Otherwise, [jms-endpoint.xml](https://github.com/OpenLiberty/ci.docker/tree/master/common/helpers/build/configuration_snippets/jms-endpoint.xml)
-* `OIDC`
-  *  Description: Enable OpenIdConnect Client function by adding the `openidConnectClient-1.0` feature.
-  *  XML Snippet Location: [oidc.xml](https://github.com/OpenLiberty/ci.docker/tree/master/common/helpers/build/configuration_snippets/oidc.xml)
-* `OIDC_CONFIG`
-  *  Description: Enable OpenIdConnect Client configuration to be read from environment variables.  
-  *  XML Snippet Location: [oidc-config.xml](https://github.com/OpenLiberty/ci.docker/tree/master/common/helpers/build/configuration_snippets/oidc-config.xml)
-  *  Note: The following variables will be read:  OIDC_CLIENT_ID, OIDC_CLIENT_SECRET, OIDC_DISCOVERY_URL.  
+
 
 Server Configuration 
 --------------------------------------------------
