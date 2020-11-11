@@ -1,0 +1,51 @@
+schema_version: 1
+
+name: openliberty/open-liberty-s2i
+version: 1.0
+from: openliberty/open-liberty:20.0.0.9-full-java11-openj9-ubi
+description: "Open Liberty UBI image with OpenJDK8"
+labels:
+    - name: io.k8s.description
+      value: "Open Liberty S2I Image"
+    - name: io.k8s.display-name
+      value: "Open Liberty S2I Builder"
+    - name: io.openshift.tags
+      value: "runner,builder,openliberty,javaee"
+    - name: io.openshift.s2i.scripts-url
+      value: image:///usr/local/s2i
+    - name: io.s2i.scripts-url
+      value: image:///usr/local/s2i
+    - name: io.openshift.expose-services
+      value: "9080/tcp:http, 9443/tcp:https"
+    - name: io.openshift.s2i.destination
+      value: "/tmp"
+
+envs:
+  - name: STI_SCRIPTS_PATH
+    value: "/usr/local/s2i"
+  - name: WORKDIR
+    value: "/usr/local/workdir"
+  - name: S2I_DESTINATION
+    value: "/tmp"
+  - name: JAVA_HOME
+    value: /opt/java/openjdk
+  - name: PATH
+    value: /opt/java/openjdk/bin:$PATH
+
+packages:
+    manager: microdnf
+
+modules:
+  repositories:
+    - path: modules
+
+  # Install selected modules (in order)
+  install:
+    - name: maven
+    - name: ol-s2i
+
+run:
+      user: 1001
+      cmd:
+          - "/opt/ol/wlp/bin/server run defaultServer"
+    
