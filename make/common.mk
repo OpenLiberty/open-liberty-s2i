@@ -2,8 +2,8 @@ build = make/build.sh
 
 script_env = \
 	IMAGE_NAME=$(IMAGE_NAME) \
-        IMAGE_VERSION=$(IMAGE_VERSION) \
-        RUNTIME_IMAGE_NAME=$(RUNTIME_IMAGE_NAME)
+    JAVA8_IMAGE_VERSION=$(JAVA8_IMAGE_VERSION) \
+	JAVA11_IMAGE_VERSION=$(JAVA11_IMAGE_VERSION)
 
 .PHONY: build
 build:
@@ -11,4 +11,6 @@ build:
 
 .PHONY: test
 test:
-	$(script_env) TEST_MODE=true $(build)
+	$(script_env) IMAGE_VERSION=$(JAVA8_IMAGE_VERSION) TEST_MODE=true $(build)
+	$(script_env) IMAGE_VERSION=$(JAVA11_IMAGE_VERSION) TEST_MODE=true $(build)
+

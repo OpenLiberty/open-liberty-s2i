@@ -1,7 +1,7 @@
 Open Liberty UBI-min images for OpenShift S2I
 =============================================
 
-This repository contains the source for building an Open Liberty Source to Image (S2I) builder using Red Hat Universal Base Image (UBI) 7 and Java 8. 
+This repository contains the source for building an Open Liberty Source to Image (S2I) builder using Red Hat Universal Base Image (UBI) 7 and either Java 8 or Java 11. 
 
 More information on S2I can be found at https://github.com/openshift/source-to-image
 
@@ -19,9 +19,12 @@ $ git clone https://github.com/openliberty/open-liberty-s2i
 $ cd open-liberty-s2i
 ```
 
-Building the Open Liberty S2I builder:
+Building the Open Liberty S2I images:
 
 ```
+$ cd images/java8
+$ cekit build docker
+$ cd ../java11
 $ cekit build docker
 ```
 S2I Usage
@@ -42,7 +45,7 @@ $ curl 127.0.0.1:9080/ROOT
 
 Test
 ----
-The tests for this repository check basic functionality of a JEE application built on top of the Open Liberty S2I image. 
+The tests for this repository check basic functionality of a JEE application built on top of the Open Liberty S2I images. 
 ```
 $ make test
 ```
