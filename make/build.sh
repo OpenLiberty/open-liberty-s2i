@@ -1,6 +1,10 @@
 #!/bin/bash -e
 SCRIPT_DIR=$(dirname $0)
-pushd ${SCRIPT_DIR}/..
+pushd ${SCRIPT_DIR}/../images/java8
+cekit build docker
+popd
+
+pushd ${SCRIPT_DIR}/../images/java11
 cekit build docker
 popd
 

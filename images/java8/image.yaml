@@ -1,8 +1,8 @@
 schema_version: 1
 
 name: openliberty/open-liberty-s2i
-version: 1.0
-from: openliberty/open-liberty:20.0.0.6-full-java8-openj9-ubi
+version: 20.0.0.9-java8
+from: openliberty/open-liberty:20.0.0.9-full-java8-openj9-ubi
 description: "Open Liberty UBI image with OpenJDK8"
 labels:
     - name: io.k8s.description
@@ -37,7 +37,7 @@ packages:
 
 modules:
   repositories:
-    - path: modules
+    - path: ../../modules
 
   # Install selected modules (in order)
   install:
