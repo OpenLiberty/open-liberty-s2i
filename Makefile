@@ -17,5 +17,4 @@ build:
 
 .PHONY: test
 test:
-	$(script_env) IMAGE_VERSION=$(JAVA8_IMAGE_VERSION) TEST_MODE=true $(build)
-	$(script_env) IMAGE_VERSION=$(JAVA11_IMAGE_VERSION) TEST_MODE=true $(build)
+	$(script_env) TEST_MODE=true $(build)
