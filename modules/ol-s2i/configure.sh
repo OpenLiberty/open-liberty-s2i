@@ -4,7 +4,10 @@ set -e
 
 SCRIPT_DIR=$(dirname $0)
 ARTIFACTS_DIR=${SCRIPT_DIR}/artifacts
-WLP_DIR=/opt/ol
+
+if [[ -z ${WLP_DIR} ]]; then 
+    WLP_DIR=/opt/ol
+fi
 
 chown -R 1001 $WLP_DIR
 chown -R 1001 $SCRIPT_DIR

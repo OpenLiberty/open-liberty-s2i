@@ -63,7 +63,18 @@ prepare() {
     echo "ERROR: The image ${IMAGE_NAME}:${IMAGE_VERSION} must exist before this script is executed."
     exit 1
   fi
+  if ! image_exists ${RUNTIME_IMAGE_NAME}:${IMAGE_VERSION}; then
+    echo "ERROR: The image ${RUNTIME_IMAGE_NAME}:${IMAGE_VERSION} must exist before this script is executed."
+    exit 1
+  fi
+
   s2i build ${s2i_args} ${test_dir}/$app ${IMAGE_NAME}:${IMAGE_VERSION} ${IMAGE_NAME}-testapp $@ >& $s2i_log_file
+  s2i build ${s2i_args} ${test_dir}/$app ${IMAGE_NAME}:${IMAGE_VERSION} ${RUNTIME_IMAGE_NAME}-testapp --runtime-image ${RUNTIME_IMAGE_NAME}:${IMAGE_VERSION} --runtime-artifact /opt/ol/wlp/usr $@ >& $s2i_log_file
+
+ }
+
+run_test_application_runtime() {
+  docker run $@ --rm $1 -p ${test_port}:${test_port} --cidfile=${cid_file} ${RUNTIME_IMAGE_NAME}-testapp  >& $log_file
 }
 
 run_test_application() {
@@ -90,8 +101,8 @@ run_test_jms_endpoint_ssl() {
   check_result $?
 }
 
-cleanup() {
-  echo "Cleanup for test, cid $(cat $cid_file)"
+cleanupContainer() {
+   echo "Cleanup for test, cid $(cat $cid_file)"
   if container_exists; then  
     if [[ $1 != "0" ]]; then
       echo "Viewing docker logs"
@@ -100,6 +111,10 @@ cleanup() {
     echo "Stopping container $(cat $cid_file)"
     docker stop $(cat $cid_file) || true
   fi
+   rm -f $cid_file
+}
+
+cleanupImages() {  
   if image_exists ${IMAGE_NAME}-testapp; then
     docker rmi -f ${IMAGE_NAME}-testapp
   fi
@@ -107,7 +122,7 @@ cleanup() {
     docker rmi -f ${RUNTIME_IMAGE_NAME}-testapp
   fi
   rm -rf ${test_dir}/test-app/.git
-  rm -f $cid_file
+ 
 }
 
 cleanupFinal() {
@@ -169,7 +184,7 @@ test_connection() {
 
 
 
-echo "Testing image $IMAGE_NAME"
+echo "Testing builder image $IMAGE_NAME"
 echo "Last s2i execution is logged in $s2i_log_file"
 echo "Last container execution is logged in $log_file"
 
@@ -190,7 +205,17 @@ wait_for_cid
 test_connection
 check_result $?
 
-cleanup 0
+cleanupContainer 0
+
+echo "### Testing the runtime image"
+run_test_application_runtime &
+wait_for_cid
+test_connection
+check_result $?
+
+# Remove built containers and images
+cleanupContainer
+cleanupImages
 cleanupFinal
 
 echo "### Test deployment in default server with dropins app."
@@ -206,7 +231,14 @@ wait_for_cid
 test_connection
 check_result $?
 
-cleanup 0
+cleanupContainer
+
+run_test_application_runtime &
+wait_for_cid
+test_connection
+check_result $?
+cleanupContainer
+cleanupImages
 
 # CONFIGURATION TESTS
 # These are simple tests that make sure that environment variables passed to s2i result
@@ -219,7 +251,17 @@ wait_for_cid
 test_connection
 check_result $?
 run_test_mp_monitoring
-cleanup 0
+
+cleanupContainer
+
+echo "MicroProfile Monitoring Configuration Test - Runtime image"
+run_test_application_runtime &
+wait_for_cid
+test_connection
+check_result $?
+run_test_mp_monitoring
+cleanupContainer
+cleanupImages
 
 echo "MicroProfile Health Configuration Test"
 prepare test-app $MP_HEALTH_CHECK_VAR
@@ -228,7 +270,16 @@ wait_for_cid
 test_connection
 check_result $?
 run_test_mp_health_check
-cleanup 0
+cleanupContainer
+
+echo "MicroProfile Health Configuration Test - Runtime Image"
+run_test_application_runtime &
+wait_for_cid
+test_connection
+check_result $?
+run_test_mp_health_check
+cleanupContainer
+cleanupImages
 
 echo "JMS Endpoint, No SSL Configuration Test"
 prepare test-app $JMS_ENDPOINT_VAR
@@ -237,7 +288,8 @@ wait_for_cid
 test_connection
 check_result $?
 run_test_jms_endpoint
-cleanup 0
+cleanupContainer
+cleanupImages
 
 echo "JMS Endpoint, SSL Configuration Test"
 prepare test-app $JMS_ENDPOINT_VAR $ENABLE_SSL_VAR
@@ -246,7 +298,8 @@ wait_for_cid
 test_connection
 check_result $?
 run_test_jms_endpoint_ssl
-cleanup 0
+cleanupContainer
+cleanupImages
 
 cleanupFinal
 
