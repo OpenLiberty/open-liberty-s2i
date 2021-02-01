@@ -1,8 +1,8 @@
 schema_version: 1
 
 name: openliberty/open-liberty-s2i
-version: 20.0.0.12-java8
-from: openliberty/open-liberty:20.0.0.12-full-java8-openj9-ubi
+version: 20.0.0.12-java11
+from: openliberty/open-liberty:20.0.0.12-full-java11-openj9-ubi
 description: "Open Liberty UBI image with OpenJDK8"
 labels:
     - name: io.k8s.description
@@ -24,7 +24,7 @@ envs:
   - name: STI_SCRIPTS_PATH
     value: "/usr/local/s2i"
   - name: WORKDIR
-    value: "/usr/local/workdir"
+    value: "/tmp/installables"
   - name: S2I_DESTINATION
     value: "/tmp"
   - name: JAVA_HOME
@@ -37,7 +37,7 @@ packages:
 
 modules:
   repositories:
-    - path: ../../modules
+    - path: ../../../modules
 
   # Install selected modules (in order)
   install:
@@ -46,6 +46,7 @@ modules:
 
 run:
       user: 1001
+      workdir: /tmp/installables
       cmd:
           - "/opt/ol/wlp/bin/server run defaultServer"
     

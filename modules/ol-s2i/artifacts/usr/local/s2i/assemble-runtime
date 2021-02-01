@@ -1,0 +1,71 @@
+#!/bin/bash -e
+#
+# (C) Copyright IBM Corporation 2021.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+# S2I assemble-runtime script for the 'open-liberty-javaee8' image.
+
+echo "Running s2i assemble-runtime with user $USER home $HOME"
+
+SERVER_DIR=/opt/ol/wlp/usr/servers/defaultServer
+OUTPUT_DIR=$WORKDIR
+echo "Using images in $OUTPUT_DIR"
+# Resulting WAR files will be deployed to /opt/ol/wlp/usr/servers/defaultServer/dropins/
+if [ -z "$DEPLOY_TO_APPS" ]; then
+  DEPLOY_DIR=$SERVER_DIR/dropins/
+else
+  DEPLOY_DIR=$SERVER_DIR/apps/
+fi
+
+echo "Deploying to directory $DEPLOY_DIR"
+ 
+if [ -n "${LIBERTY_RUNNABLE_JAR:-}" ]; then
+    echo "Copying runnable jar $OUTPUT_DIR/$LIBERTY_RUNNABLE_JAR to /opt/ol/runnable"
+    cp $OUTPUT_DIR/$LIBERTY_RUNNABLE_JAR /opt/ol/ol-runnable.jar
+else
+  if [ -f $OUTPUT_DIR/src/main/liberty/config/server.xml ]; then
+    echo "Copying provided server.xml to $SERVER_DIR"
+    cp $LOCAL_SOURCE_DIR/src/main/liberty/config/server.xml $SERVER_DIR
+  fi
+
+  # Copy supporting files from OL directory
+  if [ -d $OUTPUT_DIR/src/wlp/usr ]; then
+    cp -R $OUTPUT_DIR/src/wlp/usr /opt/ol/wlp
+  fi
+
+echo "Output dir contents: "
+ find $OUTPUT_DIR
+
+  if [ -d $OUTPUT_DIR/dropins ]; then 
+    cp -R $OUTPUT_DIR/dropins/* $SERVER_DIR/dropins
+  fi
+  if [ -d $OUTPUT_DIR/apps ]; then
+    cp -R $OUTPUT_DIR/apps/* $SERVER_DIR/apps
+  fi
+  if [ -f $OUTPUT_DIR/server.xml ]; then 
+    cp $OUTPUT_DIR/server.xml $SERVER_DIR/server.xml
+  fi
+  if [ -d $OUTPUT_DIR/usr ]; then
+    cp -R $OUTPUT_DIR/usr/* /opt/ol/wlp/usr
+  fi
+
+# Run configure again to pick up configuration from the environment (unless we're using a runnable jar)
+  echo "Configuring Server"
+  /opt/ol/helpers/build/configure.sh
+fi
+
+
+echo "Application deployment finished! Please start up the Open Liberty container using the following command: docker run -P <name of image>"
+exit $rc
