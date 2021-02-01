@@ -1,7 +1,7 @@
 Open Liberty UBI-min images for OpenShift S2I
 =============================================
 
-This repository contains the source for building an Open Liberty Source to Image (S2I) builder using Red Hat Universal Base Image (UBI) 7 and either Java 8 or Java 11. 
+This repository contains the source for building Open Liberty Source to Image (S2I) builder and runtime images using Red Hat Universal Base Image (UBI) 7 and either Java 8 or Java 11. 
 
 More information on S2I can be found at https://github.com/openshift/source-to-image
 
@@ -21,12 +21,14 @@ $ cd open-liberty-s2i
 
 Building the Open Liberty S2I images:
 
+Run the Makefile to generate all images, or generate a single image by running:
 ```
-$ cd images/java8
-$ cekit build docker
-$ cd ../java11
+$ cd $IMAGE_DIR
 $ cekit build docker
 ```
+
+Example values for IMAGE_DIR are `images/java8/builder`, `images/java8/runtime`, `images/java11/builder`, or `images/java11/runtime`. 
+
 S2I Usage
 ---------
 To build a simple [jee application](https://github.com/openshift/openshift-jee-sample)
@@ -42,6 +44,17 @@ $ docker run -p 9080:9080 open-liberty-test
 ```
 $ curl 127.0.0.1:9080/ROOT
 ```
+
+S2I Runtime Images
+------------------
+Use the following commands to build and test a lightweight runtime image 
+
+```
+$ s2i build git://github.com/openshift/openshift-jee-sample openliberty/open-liberty-s2i:latest open-liberty-runtime-test --runtime-image openliberty/open-liberty-s2i-runtime:latest --runtime-artifact /opt/ol/wlp/usr/servers/defaultServer/dropins 
+$ docker run -p 9080:9080 open-liberty-runtime-test
+```
+
+More information on the Open Liberty runtime image and available options is available [here](doc/runtime.md).
 
 Test
 ----
