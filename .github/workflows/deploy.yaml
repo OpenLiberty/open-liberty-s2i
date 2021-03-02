@@ -16,11 +16,6 @@ jobs:
       - uses: n1hility/cancel-previous-runs@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: 'Deployment pending'
-        uses: 'deliverybot/status@70e18b94326d2119355ad60dbc3c0a8329241b90'
-        with:
-          state: 'pending'
-          token: '${{ secrets.GITHUB_TOKEN }}'
       - name: Check Docker configuration
         if: env.DOCKER_USERID == '' 
         run: |
@@ -82,15 +77,4 @@ jobs:
             docker push ${JAVA8_RUNTIME_IMAGE_VERSION}
             docker push ${JAVA11_IMAGE_VERSION}
             docker push ${JAVA11_RUNTIME_IMAGE_VERSION}          
-      - name: 'deployment success'
-        if: success()
-        uses: 'deliverybot/status@70e18b94326d2119355ad60dbc3c0a8329241b90'
-        with:
-          state: 'success'
-          token: '${{ secrets.GITHUB_TOKEN }}'
-      - name: 'deployment failure'
-        if: failure()
-        uses: 'deliverybot/status@70e18b94326d2119355ad60dbc3c0a8329241b90'
-        with:
-          state: 'failure'
-          token: '${{ secrets.GITHUB_TOKEN }}'
+            
