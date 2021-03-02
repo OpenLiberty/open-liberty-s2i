@@ -50,12 +50,7 @@ jobs:
            sudo mv s2i /usr/bin
            which s2i
            s2i version
-      - name: Build and Test
-        run: |
-          . ~/cekit${{ env.CEKIT_VERSION }}/bin/activate
-          make
-          docker image ls
-      - name: Push to dockerhub
+      - name: Build and push to dockerhub
         if: env.DOCKER_USERID != ''
         run: |
             LIBERTY_VERSION=20.0.0.12
@@ -67,12 +62,17 @@ jobs:
             PLATFORM=open-liberty-s2i
             IMAGE_NAME=${NAMESPACE}/${PLATFORM}            
          
+            docker login -u="${{ secrets.DOCKER_USERID }}" -p="${{ secrets.DOCKER_PASSWORD }}"
+            
+            . ~/cekit${{ env.CEKIT_VERSION }}/bin/activate
+            make
+            
             echo Pushing the following versions of image ${IMAGE_NAME} to docker hub:
             echo ${JAVA8_IMAGE_VERSION}, ${JAVA8_RUNTIME_IMAGE_VERSION}, ${JAVA11_IMAGE_VERSION}, ${JAVA11_RUNTIME_IMAGE_VERSION}
-          
-            docker login -u="${{ secrets.DOCKER_USERID }}" -p="${{ secrets.DOCKER_PASSWORD }}"
+                 
             echo Using ${JAVA8_IMAGE_VERSION} as 'latest'
            
+            docker image ls
             docker push ${JAVA8_IMAGE_VERSION}
             docker push ${JAVA8_RUNTIME_IMAGE_VERSION}
             docker push ${JAVA11_IMAGE_VERSION}
