@@ -1,0 +1,96 @@
+name: Open Liberty s2i Image Deployment
+on:
+  release:
+    types: [published]
+env:
+  LANG: en_US.UTF-8
+  S2I_URI: https://api.github.com/repos/openshift/source-to-image/releases/latest
+  CEKIT_VERSION: 3.2.1
+  DOCKER_USERID: ${{ secrets.DOCKER_USERID }}
+jobs:
+  olci:
+    name: Open Liberty s2i Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: n1hility/cancel-previous-runs@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: 'Deployment pending'
+        uses: 'deliverybot/status@70e18b94326d2119355ad60dbc3c0a8329241b90'
+        with:
+          state: 'pending'
+          token: '${{ secrets.GITHUB_TOKEN }}'
+      - name: Check Docker configuration
+        if: env.DOCKER_USERID == '' 
+        run: |
+          echo "Docker configuration is incomplete, push to dockerhub will be skipped. "
+      - name: Setup required system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install krb5-multidev
+      - name: Verify latest centos image is present
+        run: |
+          docker image ls | grep centos
+          docker pull centos:7
+          docker pull centos/s2i-base-centos7
+          docker image ls | grep centos
+      - name: Setup virtualenv and install cekit and required packages
+        run: |
+          sudo pip install virtualenv
+          mkdir ~/cekit${{ env.CEKIT_VERSION }}
+          virtualenv ~/cekit${{ env.CEKIT_VERSION }}
+          . ~/cekit${{ env.CEKIT_VERSION }}/bin/activate
+          pip install cekit==${{ env.CEKIT_VERSION }} docker docker-squash odcs behave lxml
+      - name: install s2i binary
+        run: |
+          echo ===== Installing s2i from ${{ env.S2I_URL }} =====
+          mkdir /tmp/s2i/ && cd /tmp/s2i/
+          curl -s ${{ env.S2I_URI }} \
+           | grep browser_download_url \
+           | grep linux-amd64 \
+           | cut -d '"' -f 4 \
+           | wget -qi -
+           tar xvf source-to-image*.gz
+           sudo mv s2i /usr/bin
+           which s2i
+           s2i version
+      - name: Build and Test
+        run: |
+          . ~/cekit${{ env.CEKIT_VERSION }}/bin/activate
+          make test
+          docker image ls
+      - name: Push to dockerhub
+        if: env.DOCKER_USERID != ''
+        run: |
+            LIBERTY_VERSION=20.0.0.12
+            JAVA8_IMAGE_VERSION=$(LIBERTY_VERSION)-java8
+            JAVA8_RUNTIME_IMAGE_VERSION=$(LIBERTY_VERSION)-runtime-java8
+            JAVA11_IMAGE_VERSION=$(LIBERTY_VERSION)-java11
+            JAVA11_RUNTIME_IMAGE_VERSION=$(LIBERTY_VERSION)-runtime-java11
+            NAMESPACE=openliberty
+            PLATFORM=open-liberty-s2i
+            IMAGE_NAME=${NAMESPACE}/${PLATFORM}            
+         
+            echo Pushing the following versions of image ${IMAGE_NAME} to docker hub:
+            echo ${JAVA8_IMAGE_VERSION}, ${JAVA8_RUNTIME_IMAGE_VERSION}, ${JAVA11_IMAGE_VERSION}, ${JAVA11_RUNTIME_IMAGE_VERSION}
+          
+            docker login -u="${{ secrets.DOCKER_USERID }}" -p="${{ secrets.DOCKER_PASSWORD }}"
+            echo Using ${JAVA8_IMAGE_VERSION} as 'latest'
+            docker tag ${IMAGE_NAME}:latest ${IMAGE_NAME}:${JAVA8_IMAGE_VERSION}
+            docker push ${JAVA8_IMAGE_VERSION}
+            docker push ${JAVA8_RUNTIME_IMAGE_VERSION}
+            docker push ${JAVA11_IMAGE_VERSION}
+            docker push ${JAVA11_RUNTIME_IMAGE_VERSION}          
+      - name: 'deployment success'
+        if: success()
+        uses: 'deliverybot/status@70e18b94326d2119355ad60dbc3c0a8329241b90'
+        with:
+          state: 'success'
+          token: '${{ secrets.GITHUB_TOKEN }}'
+      - name: 'deployment failure'
+        if: failure()
+        uses: 'deliverybot/status@70e18b94326d2119355ad60dbc3c0a8329241b90'
+        with:
+          state: 'failure'
+          token: '${{ secrets.GITHUB_TOKEN }}'
