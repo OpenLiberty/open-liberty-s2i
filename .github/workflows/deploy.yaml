@@ -59,10 +59,10 @@ jobs:
         if: env.DOCKER_USERID != ''
         run: |
             LIBERTY_VERSION=20.0.0.12
-            JAVA8_IMAGE_VERSION=$(LIBERTY_VERSION)-java8
-            JAVA8_RUNTIME_IMAGE_VERSION=$(LIBERTY_VERSION)-runtime-java8
-            JAVA11_IMAGE_VERSION=$(LIBERTY_VERSION)-java11
-            JAVA11_RUNTIME_IMAGE_VERSION=$(LIBERTY_VERSION)-runtime-java11
+            JAVA8_IMAGE_VERSION=${LIBERTY_VERSION}-java8
+            JAVA8_RUNTIME_IMAGE_VERSION=${LIBERTY_VERSION}-runtime-java8
+            JAVA11_IMAGE_VERSION=${LIBERTY_VERSION}-java11
+            JAVA11_RUNTIME_IMAGE_VERSION=${LIBERTY_VERSION}-runtime-java11
             NAMESPACE=openliberty
             PLATFORM=open-liberty-s2i
             IMAGE_NAME=${NAMESPACE}/${PLATFORM}            
