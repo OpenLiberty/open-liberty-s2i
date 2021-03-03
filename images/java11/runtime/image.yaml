@@ -1,7 +1,7 @@
 schema_version: 1
 
-name: openliberty/open-liberty-s2i-runtime
-version: 20.0.0.12-java11
+name: openliberty/open-liberty-s2i
+version: 20.0.0.12-runtime-java11
 from: openliberty/open-liberty:20.0.0.12-full-java11-openj9-ubi
 description: "Open Liberty UBI runtime image with OpenJDK 11"
 labels:
