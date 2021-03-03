@@ -63,18 +63,19 @@ prepare() {
     echo "ERROR: The image ${IMAGE_NAME}:${IMAGE_VERSION} must exist before this script is executed."
     exit 1
   fi
-  if ! image_exists ${RUNTIME_IMAGE_NAME}:${IMAGE_VERSION}; then
-    echo "ERROR: The image ${RUNTIME_IMAGE_NAME}:${IMAGE_VERSION} must exist before this script is executed."
+  if ! image_exists ${IMAGE_NAME}:${RUNTIME_IMAGE_VERSION}; then
+    echo "ERROR: The image ${IMAGE_NAME}:${RUNTIME_IMAGE_VERSION} must exist before this script is executed."
     exit 1
   fi
 
   s2i build ${s2i_args} ${test_dir}/$app ${IMAGE_NAME}:${IMAGE_VERSION} ${IMAGE_NAME}-testapp $@ >& $s2i_log_file
-  s2i build ${s2i_args} ${test_dir}/$app ${IMAGE_NAME}:${IMAGE_VERSION} ${RUNTIME_IMAGE_NAME}-testapp --runtime-image ${RUNTIME_IMAGE_NAME}:${IMAGE_VERSION} --runtime-artifact /opt/ol/wlp/usr $@ >& $s2i_log_file
+  echo s2i build ${s2i_args} ${test_dir}/$app ${IMAGE_NAME}:${IMAGE_VERSION} ${IMAGE_NAME}-runtime-testapp --runtime-image ${IMAGE_NAME}:${RUNTIME_IMAGE_VERSION} --runtime-artifact /opt/ol/wlp/usr $@ >& $s2i_log_file
+  s2i build ${s2i_args} ${test_dir}/$app ${IMAGE_NAME}:${IMAGE_VERSION} ${IMAGE_NAME}-runtime-testapp --runtime-image ${IMAGE_NAME}:${RUNTIME_IMAGE_VERSION} --runtime-artifact /opt/ol/wlp/usr $@ >& $s2i_log_file
 
  }
 
 run_test_application_runtime() {
-  docker run $@ --rm $1 -p ${test_port}:${test_port} --cidfile=${cid_file} ${RUNTIME_IMAGE_NAME}-testapp  >& $log_file
+  docker run $@ --rm $1 -p ${test_port}:${test_port} --cidfile=${cid_file} ${IMAGE_NAME}-runtime-testapp  >& $log_file
 }
 
 run_test_application() {
@@ -118,8 +119,8 @@ cleanupImages() {
   if image_exists ${IMAGE_NAME}-testapp; then
     docker rmi -f ${IMAGE_NAME}-testapp
   fi
-  if image_exists ${RUNTIME_IMAGE_NAME}-testapp; then
-    docker rmi -f ${RUNTIME_IMAGE_NAME}-testapp
+  if image_exists ${IMAGE_NAME}-runtime-testapp; then
+    docker rmi -f ${IMAGE_NAME}-runtime-testapp
   fi
   rm -rf ${test_dir}/test-app/.git
  
