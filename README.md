@@ -50,7 +50,7 @@ S2I Runtime Images
 Use the following commands to build and test a lightweight runtime image 
 
 ```
-$ s2i build git://github.com/openshift/openshift-jee-sample openliberty/open-liberty-s2i:latest open-liberty-runtime-test --runtime-image openliberty/open-liberty-s2i-runtime:latest --runtime-artifact /opt/ol/wlp/usr/servers/defaultServer/dropins 
+$ s2i build git://github.com/openshift/openshift-jee-sample openliberty/open-liberty-s2i:latest open-liberty-runtime-test --runtime-image openliberty/open-liberty-s2i:20.0.0.12-runtime-java8 --runtime-artifact /opt/ol/wlp/usr/servers/defaultServer/dropins 
 $ docker run -p 9080:9080 open-liberty-runtime-test
 ```
 
