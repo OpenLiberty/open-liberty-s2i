@@ -7,6 +7,7 @@ env:
   S2I_URI: https://api.github.com/repos/openshift/source-to-image/releases/latest
   CEKIT_VERSION: 3.2.1
   DOCKER_USERID: ${{ secrets.DOCKER_USERID }}
+  LIBERTY_VERSION: ${{ github.event.release.tag_name }}
 jobs:
   olci:
     name: Open Liberty s2i Build and Test
@@ -53,7 +54,7 @@ jobs:
       - name: Build and push to dockerhub
         if: env.DOCKER_USERID != ''
         run: |
-            LIBERTY_VERSION=20.0.0.12
+            LIBERTY_VERSION=${{ env.LIBERTY_VERSION }}
             JAVA8_IMAGE_VERSION=${LIBERTY_VERSION}-java8
             JAVA8_RUNTIME_IMAGE_VERSION=${LIBERTY_VERSION}-runtime-java8
             JAVA11_IMAGE_VERSION=${LIBERTY_VERSION}-java11
