@@ -1,34 +1,37 @@
 #!/bin/bash -e
 SCRIPT_DIR=$(dirname $0)
 
-# Build Java 8 builder image
+JAVA8_BASE_IMAGE_NAME="openliberty/open-liberty:${LIBERTY_VERSION}-full-java8-openj9-ubi"
+JAVA11_BASE_IMAGE_NAME="openliberty/open-liberty:${LIBERTY_VERSION}-full-java11-openj9-ubi"
+
+echo "Building Java 8 Builder Image"
 pushd ${SCRIPT_DIR}/images/java8/builder
-cekit build docker
+cekit build --overrides '{"from": "'"${JAVA8_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA8_IMAGE_VERSION}"'"}' docker
 popd
 
-# Build Java 8 runtime image
+echo "Building Java 8 Runtime Image"
 pushd ${SCRIPT_DIR}/images/java8/runtime
-cekit build docker
+cekit build --overrides '{"from": "'"${JAVA8_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA8_RUNTIME_IMAGE_VERSION}"'"}' docker
 popd
 
 # Test Java 8 image if TEST_MODE is set
 if [[ ! -z "${TEST_MODE:-}" ]]; then
-  echo Testing version ${JAVA8_IMAGE_VERSION}
+  echo "Testing versions ${JAVA8_IMAGE_VERSION} and ${JAVA8_RUNTIME_IMAGE_VERSION}"
   IMAGE_VERSION=${JAVA8_IMAGE_VERSION}; RUNTIME_IMAGE_VERSION=${JAVA8_RUNTIME_IMAGE_VERSION}; . ${SCRIPT_DIR}/test/run
 fi
 
-# Build Java 11 builder image
+echo "Building Java 11 Builder Image"
 pushd ${SCRIPT_DIR}/images/java11/builder
-cekit build docker
+cekit build --overrides '{"from": "'"${JAVA11_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA11_IMAGE_VERSION}"'"}' docker
 popd
 
-# Build Java 11 runtime image
+echo "Building Java 11 Runtime Image"
 pushd ${SCRIPT_DIR}/images/java11/runtime
-cekit build docker
+cekit build --overrides '{"from": "'"${JAVA11_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA11_RUNTIME_IMAGE_VERSION}"'"}' docker
 popd
 
 # Test Java 11 image if TEST_MODE is set
 if [[ ! -z "${TEST_MODE:-}" ]]; then
-  echo Testing version ${JAVA11_IMAGE_VERSION}
+  echo "Testing versions ${JAVA11_IMAGE_VERSION} and ${JAVA11_RUNTIME_IMAGE_VERSION}"
   IMAGE_VERSION=${JAVA11_IMAGE_VERSION}; RUNTIME_IMAGE_VERSION=${JAVA11_RUNTIME_IMAGE_VERSION}; . ${SCRIPT_DIR}/test/run
 fi
