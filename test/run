@@ -71,7 +71,6 @@ prepare() {
   s2i build ${s2i_args} ${test_dir}/$app ${IMAGE_NAME}:${IMAGE_VERSION} ${IMAGE_NAME}-testapp $@ >& $s2i_log_file
   echo s2i build ${s2i_args} ${test_dir}/$app ${IMAGE_NAME}:${IMAGE_VERSION} ${IMAGE_NAME}-runtime-testapp --runtime-image ${IMAGE_NAME}:${RUNTIME_IMAGE_VERSION} --runtime-artifact /opt/ol/wlp/usr $@ >& $s2i_log_file
   s2i build ${s2i_args} ${test_dir}/$app ${IMAGE_NAME}:${IMAGE_VERSION} ${IMAGE_NAME}-runtime-testapp --runtime-image ${IMAGE_NAME}:${RUNTIME_IMAGE_VERSION} --runtime-artifact /opt/ol/wlp/usr $@ >& $s2i_log_file
-
  }
 
 run_test_application_runtime() {
@@ -135,7 +134,7 @@ cleanupFinal() {
 check_result() {
   local result="$1"
   if [[ "$result" != "0" ]]; then
-    cleanup 1
+    cleanupContainer 1
     echo "S2I image '${IMAGE_NAME}' test FAILED (exit code: ${result}), last container execution log file in $log_file"
     exit $result
   fi
@@ -156,6 +155,13 @@ wait_for_cid() {
 
 run_test_usage() {
   s2i usage ${s2i_args} ${IMAGE_NAME}:${IMAGE_VERSION} &>/dev/null
+}
+
+run_test_incremental() {
+  set +e
+  s2i build ${s2i_args} ${test_dir}/$app ${IMAGE_NAME}:${IMAGE_VERSION} ${IMAGE_NAME}-incremental-testapp --incremental >& $s2i_log_file
+  check_result $?
+  set -e
 }
 
 test_connection() {
@@ -195,6 +201,9 @@ prepare test-app-rest $DEPLOY_TO_APPS_VAR
 # Verify the 'usage' script is working properly
 run_test_usage
 check_result $?
+
+# Verify building incremental is working properly
+run_test_incremental
 
 # Verify that the HTTP connection can be established to test application container
 run_test_application &

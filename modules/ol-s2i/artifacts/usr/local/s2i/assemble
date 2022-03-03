@@ -18,7 +18,7 @@
 
 if [ -d /tmp/artifacts/.m2 ]; then
   echo "---> Restoring maven artifacts..."
-  mv /tmp/artifacts/.m2 ${HOME}/
+  mv /tmp/artifacts/.m2/* ${HOME}/.m2
 fi
 
 # S2I assemble script for the 'open-liberty-javaee8' image.
