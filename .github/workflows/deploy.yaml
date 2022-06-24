@@ -74,7 +74,19 @@ jobs:
             echo Using ${JAVA8_IMAGE_VERSION} as 'latest'
            
             docker image ls
+            
             docker push ${IMAGE_NAME}:${JAVA8_IMAGE_VERSION}
+            docker tag ${IMAGE_NAME}:${JAVA8_IMAGE_VERSION} ${IMAGE_NAME}:java8
+            docker push ${IMAGE_NAME}:java8
+            
             docker push ${IMAGE_NAME}:${JAVA8_RUNTIME_IMAGE_VERSION}
+            docker tag ${IMAGE_NAME}:${JAVA8_RUNTIME_IMAGE_VERSION} ${IMAGE_NAME}:runtime-java8
+            docker push ${IMAGE_NAME}:runtime-java8
+            
             docker push ${IMAGE_NAME}:${JAVA11_IMAGE_VERSION}
-            docker push ${IMAGE_NAME}:${JAVA11_RUNTIME_IMAGE_VERSION}  
+            docker tag ${IMAGE_NAME}:${JAVA11_IMAGE_VERSION} ${IMAGE_NAME}:java11
+            docker push ${IMAGE_NAME}:java11
+            
+            docker push ${IMAGE_NAME}:${JAVA11_RUNTIME_IMAGE_VERSION}
+            docker tag ${IMAGE_NAME}:${JAVA11_RUNTIME_IMAGE_VERSION} ${IMAGE_NAME}:runtime-java11
+            docker push ${IMAGE_NAME}:runtime-java11
