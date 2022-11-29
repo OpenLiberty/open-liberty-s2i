@@ -1,0 +1,154 @@
+version: "1"
+
+setup:
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.15
+  script: |
+    #!/usr/bin/env bash
+test:
+  abort_on_failure: false
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  script: |
+    #!/usr/bin/env bash
+    echo "in test"
+    PERIODIC_SCAN=$(get_env periodic-rescan)
+    PERIODIC_SCAN="$(echo "$PERIODIC_SCAN" | tr '[:upper:]' '[:lower:]')"
+
+    if [[ ! -z "$PERIODIC_SCAN" && "$PERIODIC_SCAN" != "false" && "$PERIODIC_SCAN" != "no"  ]]; then
+      echo "Skipping unit-tests. This is a periodic run that is only meant to produce CVE information."
+      exit 0
+    fi
+static-scan:
+  dind: true
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  script: |
+    #!/usr/bin/env bash
+    # scan for open liberty and websphere liberty submodules? 
+    PERIODIC_SCAN=$(get_env periodic-rescan)
+    PERIODIC_SCAN="$(echo "$PERIODIC_SCAN" | tr '[:upper:]' '[:lower:]')"
+
+    if [[ ! -z "$PERIODIC_SCAN" && "$PERIODIC_SCAN" != "false" && "$PERIODIC_SCAN" != "no"  ]]; then
+      echo "Skipping unit-tests. This is a periodic run that is only meant to produce CVE information."
+      exit 0
+    fi
+    read -r SONAR_HOST_URL <<< "$(get_env sonarqube | jq -r '.parameters.dashboard_url' | sed 's:/*$::')"
+    read -r SONAR_USER <<< "$(get_env sonarqube | jq -r '.parameters.user_login')"
+    SONARQUBE_INSTANCE_ID=$(get_env sonarqube | jq -r '.instance_id')
+    read -r SONAR_PASS <<< "$(jq -r --arg sonar_instance "$SONARQUBE_INSTANCE_ID" '[.services[] | select(."service_id"=="sonarqube")][] | select(."instance_id"==$sonar_instance) | .parameters.user_password' /toolchain/toolchain.json)"  
+    touch "$WORKSPACE"/WAS-on-AWS/sonar-project.properties   
+    cat << EOF > "$WORKSPACE"/WAS-on-AWS/sonar-project.properties
+    sonar.projectKey=liberty-eks-aws
+    sonar.host.url=$SONAR_HOST_URL
+    sonar.sources=.
+    sonar.login=$SONAR_USER
+    sonar.password=$SONAR_PASS
+    sonar.c.file.suffixes=-
+    sonar.cpp.file.suffixes=-
+    sonar.objc.file.suffixes=-
+    EOF
+    chmod -x "$WORKSPACE"/WAS-on-AWS/sonar-project.properties
+    #echo "$SONAR_PASS" >> /tmp/sonarqube-token
+    "${ONE_PIPELINE_PATH}"/internal/sonarqube/sonarqube_run
+containerize:
+  abort_on_failure: true
+  dind: true
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  script: |
+    #!/usr/bin/env bash
+    
+    if [[ ! -z "$PERIODIC_SCAN" && "$PERIODIC_SCAN" != "false" && "$PERIODIC_SCAN" != "no"  ]]; then
+      echo "Skipping build. This is a periodic run that is only meant to produce CVE information."
+      exit 0
+    fi
+    
+    echo "MEND unified agent scan"
+    chmod +x "${COMMONS_PATH}/whitesource/whitesource_unified_agent_scan.sh"
+    source "${COMMONS_PATH}/whitesource/whitesource_unified_agent_scan.sh"
+sign-artifact:
+  abort_on_failure: false
+  image: icr.io/continuous-delivery/pipeline/image-signing:1.0.0@sha256:e9d8e354668ba3d40be2aaee08298d2aa7f0e1c8a1829cca4094ec93830e3e6a
+  script: |
+    #!/usr/bin/env bash
+    echo "sign-artifact"
+    PERIODIC_SCAN=$(get_env periodic-rescan)
+    PERIODIC_SCAN="$(echo "$PERIODIC_SCAN" | tr '[:upper:]' '[:lower:]')"
+
+    if [[ ! -z "$PERIODIC_SCAN" && "$PERIODIC_SCAN" != "false" && "$PERIODIC_SCAN" != "no"  ]]; then
+      echo "Skipping unit-tests. This is a periodic run that is only meant to produce CVE information."
+      exit 0
+    fi
+deploy:
+  abort_on_failure: true
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  script: |
+    #!/usr/bin/env bash
+    echo "in deploy"
+    PERIODIC_SCAN=$(get_env periodic-rescan)
+    PERIODIC_SCAN="$(echo "$PERIODIC_SCAN" | tr '[:upper:]' '[:lower:]')"
+
+    if [[ ! -z "$PERIODIC_SCAN" && "$PERIODIC_SCAN" != "false" && "$PERIODIC_SCAN" != "no"  ]]; then
+      echo "Skipping unit-tests. This is a periodic run that is only meant to produce CVE information."
+      exit 0
+    fi
+dynamic-scan:
+  abort_on_failure: true
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  script: |
+    #!/usr/bin/env bash
+    echo "in dyn scan"
+    PERIODIC_SCAN=$(get_env periodic-rescan)
+    PERIODIC_SCAN="$(echo "$PERIODIC_SCAN" | tr '[:upper:]' '[:lower:]')"
+
+    if [[ ! -z "$PERIODIC_SCAN" && "$PERIODIC_SCAN" != "false" && "$PERIODIC_SCAN" != "no"  ]]; then
+      echo "Skipping unit-tests. This is a periodic run that is only meant to produce CVE information."
+      exit 0
+    fi
+acceptance-test:
+  abort_on_failure: true
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  script: |
+    #!/usr/bin/env bash
+    echo "in setup"
+    PERIODIC_SCAN=$(get_env periodic-rescan)
+    PERIODIC_SCAN="$(echo "$PERIODIC_SCAN" | tr '[:upper:]' '[:lower:]')"
+
+    if [[ ! -z "$PERIODIC_SCAN" && "$PERIODIC_SCAN" != "false" && "$PERIODIC_SCAN" != "no"  ]]; then
+      echo "Skipping unit-tests. This is a periodic run that is only meant to produce CVE information."
+      exit 0
+    fi
+scan-artifact:
+  abort_on_failure: false
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.15
+  script: |
+    #!/usr/bin/env bash
+    export PIPELINE_PASSWORD=$(get_env ibmcloud-api-key)
+
+    # ========== Security Scanner ==========
+    #./scripts/pipeline/ci_to_secure_pipeline_scan.sh
+
+release:
+    abort_on_failure: false
+    dind: true
+    image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+    script: |
+      #!/usr/bin/env bash
+      PERIODIC_SCAN=$(get_env periodic-rescan)
+      PERIODIC_SCAN="$(echo "$PERIODIC_SCAN" | tr '[:upper:]' '[:lower:]')"
+
+      if [[ ! -z "$PERIODIC_SCAN" && "$PERIODIC_SCAN" != "false" && "$PERIODIC_SCAN" != "no"  ]]; then
+        echo "Skipping unit-tests. This is a periodic run that is only meant to produce CVE information."
+        exit 0
+      fi
+owasp-zap-api:
+  dind: true
+  abort_on_failure: true
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  script: |
+    #!/usr/bin/env bash
+    echo "in owasp"
+    PERIODIC_SCAN=$(get_env periodic-rescan)
+    PERIODIC_SCAN="$(echo "$PERIODIC_SCAN" | tr '[:upper:]' '[:lower:]')"
+
+    if [[ ! -z "$PERIODIC_SCAN" && "$PERIODIC_SCAN" != "false" && "$PERIODIC_SCAN" != "no"  ]]; then
+      echo "Skipping unit-tests. This is a periodic run that is only meant to produce CVE information."
+      exit 0
+    fi
