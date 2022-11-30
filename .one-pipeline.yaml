@@ -34,8 +34,8 @@ static-scan:
     read -r SONAR_USER <<< "$(get_env sonarqube | jq -r '.parameters.user_login')"
     SONARQUBE_INSTANCE_ID=$(get_env sonarqube | jq -r '.instance_id')
     read -r SONAR_PASS <<< "$(jq -r --arg sonar_instance "$SONARQUBE_INSTANCE_ID" '[.services[] | select(."service_id"=="sonarqube")][] | select(."instance_id"==$sonar_instance) | .parameters.user_password' /toolchain/toolchain.json)"  
-    touch "$WORKSPACE"/WAS-on-AWS/sonar-project.properties   
-    cat << EOF > "$WORKSPACE"/WAS-on-AWS/sonar-project.properties
+    touch "$WORKSPACE"/open-liberty-s2i/sonar-project.properties   
+    cat << EOF > "$WORKSPACE"/open-liberty-s2i/sonar-project.properties
     sonar.projectKey=liberty-eks-aws
     sonar.host.url=$SONAR_HOST_URL
     sonar.sources=.
@@ -45,7 +45,7 @@ static-scan:
     sonar.cpp.file.suffixes=-
     sonar.objc.file.suffixes=-
     EOF
-    chmod -x "$WORKSPACE"/WAS-on-AWS/sonar-project.properties
+    chmod -x "$WORKSPACE"/open-liberty-s2i/sonar-project.properties
     #echo "$SONAR_PASS" >> /tmp/sonarqube-token
     "${ONE_PIPELINE_PATH}"/internal/sonarqube/sonarqube_run
 containerize:
