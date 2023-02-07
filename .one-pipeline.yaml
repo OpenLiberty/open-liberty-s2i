@@ -4,6 +4,11 @@ setup:
   image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.15
   script: |
     #!/usr/bin/env bash
+
+    set_env S2I_URI "https://api.github.com/repos/openshift/source-to-image/releases/tags/v1.3.1"
+    set_env CEKIT_VERSION "3.2.1"   
+    set_env LIBERTY_VERSION "22.0.0.11"
+
 test:
   abort_on_failure: false
   image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
@@ -54,12 +59,75 @@ containerize:
   image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
   script: |
     #!/usr/bin/env bash
-    
+    echo "*** OS release ***"
+    cat /etc/os-release
+
     if [[ ! -z "$PERIODIC_SCAN" && "$PERIODIC_SCAN" != "false" && "$PERIODIC_SCAN" != "no"  ]]; then
       echo "Skipping build. This is a periodic run that is only meant to produce CVE information."
       exit 0
+    else
+      if [[ "$PIPELINE_DEBUG" == 1 ]]; then 
+        trap env EXIT
+        env
+        set -x
+      fi
     fi
+
+    apt-get update
+    apt-get -qq -y install krb5-multidev libkrb5-dev python3 python3-pip python3-venv
+
+    # Download cekit 
+    CEKIT_VERSION=$(get_env CEKIT_VERSION)
+    pip3 install virtualenv
+    mkdir ~/cekit${CEKIT_VERSION}
+    python3 -m venv ~/cekit${CEKIT_VERSION}
+    pip3 install --upgrade pip
+    pip3 install cekit==${CEKIT_VERSION} docker==5.0.3 docker-squash odcs behave lxml setuptools_rust
+    . ~/cekit${CEKIT_VERSION}/bin/activate
+    echo "***** Installed CEKIT version ${CEKIT_VERSION} *****"
+    cekit --version
+
+    # Install S2I Binary
+    echo ===== Installing s2i from $(get_env S2I_URI)=====
+    mkdir /tmp/s2i/ && cd /tmp/s2i/
+    curl -s $(get_env S2I_URI) \
+     | grep browser_download_url \
+     | grep linux-amd64 \
+     | cut -d '"' -f 4 \
+     | wget -qi -
+     tar xvf source-to-image*.gz
+     mv s2i /usr/bin
+     echo "***** Installed S2I  *****"
+     s2i version
+     cd -
+  
+     
+    echo "***** Running Tests *****"
+    make test
+
+    echo "***** Available Docker Images *****"
+    docker image ls
     
+    LIBERTY_VERSION=$(get_env LIBERTY_VERSION)
+    echo "**** Saving Artifacts ****"
+    declare -a tags=("${LIBERTY_VERSION-java8}" "${LIBERTY_VERSION}-java11" "${LIBERTY_VERSION-runtime-java8}" "${LIBERTY_VERSION-runtime-java11}")
+    for i in "${tags[@]}"
+    do
+      IMAGE=$PIPELINE_REGISTRY/$PIPELINE_S2I_IMAGE:$i
+      DIGEST="$(skopeo inspect docker://$IMAGE | grep Digest | grep -o 'sha[^\"]*')"     
+      echo "Saving artifact s2i-$i name=$IMAGE digest=$DIGEST type=$TYPE"
+      save_artifact s2i-$i type=$TYPE name="$IMAGE" "digest=$DIGEST" 
+    done
+
+
+    #
+    # iterate over all artifacts and print their image names
+    #
+    while read -r key; do
+      image=$(load_artifact $key name)
+      echo "Artifact saved as '$key' is named: '$image'"
+    done < <(list_artifacts)
+
     echo "MEND unified agent scan"
     chmod +x "${COMMONS_PATH}/whitesource/whitesource_unified_agent_scan.sh"
     source "${COMMONS_PATH}/whitesource/whitesource_unified_agent_scan.sh"
@@ -115,6 +183,7 @@ acceptance-test:
       echo "Skipping unit-tests. This is a periodic run that is only meant to produce CVE information."
       exit 0
     fi
+  
 scan-artifact:
   abort_on_failure: false
   image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.15
@@ -131,6 +200,7 @@ release:
     image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
     script: |
       #!/usr/bin/env bash
+      echo **** Release ****
       PERIODIC_SCAN=$(get_env periodic-rescan)
       PERIODIC_SCAN="$(echo "$PERIODIC_SCAN" | tr '[:upper:]' '[:lower:]')"
 
@@ -138,6 +208,48 @@ release:
         echo "Skipping unit-tests. This is a periodic run that is only meant to produce CVE information."
         exit 0
       fi
+
+      RELEASE_FLAG=$(get_env release "false")
+      if [[ $RELEASE_FLAG != "true" ]]; then
+        echo "Skipping release stage; environment property 'release' is set to $RELEASE_FLAG"
+        exit 0
+      fi
+      SKIP_ALL_CHECKS=$(get_env SKIP_ALL_CHECKS "false")
+      echo **** Running Evaluator ****
+      ./pipeline/evaluator.sh      
+      if [[ $? == 0 || $SKIP_ALL_CHECKS == "true" ]]; then
+        if [[  $SKIP_ALL_CHECKS == "true" ]]; then
+          echo "Skipping image scan checks"
+        fi
+        APP_REPO=$(pwd)
+        echo "Application Repository: $APP_REPO"
+        INVENTORY_REPO=$(get_env inventory-repo)
+        echo "Cloning inventory repository: $INVENTORY_REPO"
+        cd "$WORKSPACE"
+        APP_TOKEN_PATH="$WORKSPACE/secrets/app-token"
+        . "${ONE_PIPELINE_PATH}"/git/clone_repo \
+          "$INVENTORY_REPO" \
+          "master"  \
+          "" \
+          "$APP_TOKEN_PATH"
+        REPO=${INVENTORY_REPO##*/}
+        NAME=${REPO%.*}
+        echo "Inventory name: $NAME"
+        cd $WORKSPACE/$NAME
+        if [ "$(ls )" ]; then
+          echo "Clearing inventory repository: $INVENTORY_REPO"
+          git config --global user.email "tekton@example.com"
+          git config --global user.name "Tekton"
+          git rm *
+          git commit -m "Delete contents of inventory repository - $PIPELINE_RUN_ID"
+          git push origin master
+        fi
+        cd $APP_REPO
+        ./scripts/pipeline/release.sh
+      else
+        echo "Errors found.  images will not be released"
+      fi
+
 owasp-zap-api:
   dind: true
   abort_on_failure: true
