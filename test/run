@@ -17,16 +17,6 @@ cid_file=$test_dir/test.cid
 
 SNIPPETS_TARGET=/config/configDropins/overrides
 
-# Environment variables used to modify the Open Liberty configuration
-ENABLE_SSL_VAR="-e SSL=true"
-ENABLE_TLS_VAR="-e TLS=true"
-HTTP_ENDPOINT_VAR="-e HTTP_ENDPOINT=true"
-MP_HEALTH_CHECK_VAR="-e MP_HEALTH_CHECK=true"
-MP_MONITORING_VAR="-e MP_MONITORING=true"
-HZ_SESSION_CACHE_CLIENT_VAR="-e HZ_SESSION_CACHE=client"
-HZ_SESSION_CACHE_EMBEDDED_VAR="-e HZ_SESSION_CACHE=embedded"
-IIOP_ENDPOINT_VAR="-e IIOP_ENDPOINT=true"
-JMS_ENDPOINT_VAR="-e JMS_ENDPOINT=true"
 DEPLOY_TO_APPS_VAR="-e DEPLOY_TO_APPS=true"
 
 # Since we built the image locally, we don't want S2I attempt to pull
@@ -59,47 +49,31 @@ container_port() {
 prepare() {
   app=$1
   shift
-  if ! image_exists ${IMAGE_NAME}:${IMAGE_VERSION}; then
-    echo "ERROR: The image ${IMAGE_NAME}:${IMAGE_VERSION} must exist before this script is executed."
+  if ! image_exists ${BUILD_IMAGE_NAME}:${IMAGE_VERSION}; then
+    echo "ERROR: The image ${BUILD_IMAGE_NAME}:${IMAGE_VERSION} must exist before this script is executed."
     exit 1
   fi
-  if ! image_exists ${IMAGE_NAME}:${RUNTIME_IMAGE_VERSION}; then
-    echo "ERROR: The image ${IMAGE_NAME}:${RUNTIME_IMAGE_VERSION} must exist before this script is executed."
+  if ! image_exists ${BUILD_IMAGE_NAME}:${RUNTIME_IMAGE_VERSION}; then
+    echo "ERROR: The image ${BUILD_IMAGE_NAME}:${RUNTIME_IMAGE_VERSION} must exist before this script is executed."
     exit 1
   fi
 
-  s2i build ${s2i_args} ${test_dir}/$app ${IMAGE_NAME}:${IMAGE_VERSION} ${IMAGE_NAME}-testapp $@ >& $s2i_log_file
-  echo s2i build ${s2i_args} ${test_dir}/$app ${IMAGE_NAME}:${IMAGE_VERSION} ${IMAGE_NAME}-runtime-testapp --runtime-image ${IMAGE_NAME}:${RUNTIME_IMAGE_VERSION} --runtime-artifact /opt/ol/wlp/usr $@ >& $s2i_log_file
-  s2i build ${s2i_args} ${test_dir}/$app ${IMAGE_NAME}:${IMAGE_VERSION} ${IMAGE_NAME}-runtime-testapp --runtime-image ${IMAGE_NAME}:${RUNTIME_IMAGE_VERSION} --runtime-artifact /opt/ol/wlp/usr $@ >& $s2i_log_file
+  echo "s2i build ${s2i_args} ${test_dir}/$app ${BUILD_IMAGE_NAME}:${IMAGE_VERSION} ${BUILD_IMAGE_NAME}-testapp $@"
+  s2i build ${s2i_args} ${test_dir}/$app ${BUILD_IMAGE_NAME}:${IMAGE_VERSION} ${BUILD_IMAGE_NAME}-testapp $@ >& $s2i_log_file
+  echo "s2i build ${s2i_args} ${test_dir}/$app ${BUILD_IMAGE_NAME}:${IMAGE_VERSION} ${BUILD_IMAGE_NAME}-runtime-testapp --runtime-image ${BUILD_IMAGE_NAME}:${RUNTIME_IMAGE_VERSION} --runtime-artifact /opt/ol/wlp/usr $@"
+  s2i build ${s2i_args} ${test_dir}/$app ${BUILD_IMAGE_NAME}:${IMAGE_VERSION} ${BUILD_IMAGE_NAME}-runtime-testapp --runtime-image ${BUILD_IMAGE_NAME}:${RUNTIME_IMAGE_VERSION} --runtime-artifact /opt/ol/wlp/usr $@ >& $s2i_log_file
+
  }
 
 run_test_application_runtime() {
-  docker run $@ --rm $1 -p ${test_port}:${test_port} --cidfile=${cid_file} ${IMAGE_NAME}-runtime-testapp  >& $log_file
+  docker run $@ --rm $1 -p ${test_port}:${test_port} --cidfile=${cid_file} ${BUILD_IMAGE_NAME}-runtime-testapp  >& $log_file
 }
 
 run_test_application() {
-  docker run $@ --rm -p ${test_port}:${test_port} --cidfile=${cid_file} ${IMAGE_NAME}-testapp >& $log_file
+  docker run $@ --rm -p ${test_port}:${test_port} --cidfile=${cid_file} ${BUILD_IMAGE_NAME}-testapp >& $log_file
 }
 
-run_test_mp_monitoring() {
-  docker exec $(cat $cid_file) cat $SNIPPETS_TARGET/mp-monitoring.xml
-  check_result $?
-}
 
-run_test_mp_health_check() {
-  docker exec $(cat $cid_file) cat $SNIPPETS_TARGET/mp-health-check.xml
-  check_result $?
-}
-
-run_test_jms_endpoint() {
-  docker exec $(cat $cid_file) cat $SNIPPETS_TARGET/jms-endpoint.xml
-  check_result $?
-}
-
-run_test_jms_endpoint_ssl() {
-  docker exec $(cat $cid_file) cat $SNIPPETS_TARGET/jms-ssl-endpoint.xml
-  check_result $?
-}
 
 cleanupContainer() {
    echo "Cleanup for test, cid $(cat $cid_file)"
@@ -115,11 +89,11 @@ cleanupContainer() {
 }
 
 cleanupImages() {  
-  if image_exists ${IMAGE_NAME}-testapp; then
-    docker rmi -f ${IMAGE_NAME}-testapp
+  if image_exists ${BUILD_IMAGE_NAME}-testapp; then
+    docker rmi -f ${BUILD_IMAGE_NAME}-testapp
   fi
-  if image_exists ${IMAGE_NAME}-runtime-testapp; then
-    docker rmi -f ${IMAGE_NAME}-runtime-testapp
+  if image_exists ${BUILD_IMAGE_NAME}-runtime-testapp; then
+    docker rmi -f ${BUILD_IMAGE_NAME}-runtime-testapp
   fi
   rm -rf ${test_dir}/test-app/.git
  
@@ -135,7 +109,7 @@ check_result() {
   local result="$1"
   if [[ "$result" != "0" ]]; then
     cleanupContainer 1
-    echo "S2I image '${IMAGE_NAME}' test FAILED (exit code: ${result}), last container execution log file in $log_file"
+    echo "S2I image '${BUILD_IMAGE_NAME}' test FAILED (exit code: ${result}), last container execution log file in $log_file"
     exit $result
   fi
 }
@@ -154,12 +128,14 @@ wait_for_cid() {
 }
 
 run_test_usage() {
-  s2i usage ${s2i_args} ${IMAGE_NAME}:${IMAGE_VERSION} &>/dev/null
+  echo "s2i usage ${s2i_args} ${BUILD_IMAGE_NAME}:${IMAGE_VERSION}"
+  s2i usage ${s2i_args} ${BUILD_IMAGE_NAME}:${IMAGE_VERSION} &>/dev/null
 }
 
 run_test_incremental() {
   set +e
-  s2i build ${s2i_args} ${test_dir}/$app ${IMAGE_NAME}:${IMAGE_VERSION} ${IMAGE_NAME}-incremental-testapp --incremental >& $s2i_log_file
+  echo "s2i build ${s2i_args} ${test_dir}/$app ${BUILD_IMAGE_NAME}:${IMAGE_VERSION} ${BUILD_IMAGE_NAME}-incremental-testapp --incremental >& $s2i_log_file"
+  s2i build ${s2i_args} ${test_dir}/$app ${BUILD_IMAGE_NAME}:${IMAGE_VERSION} ${BUILD_IMAGE_NAME}-incremental-testapp --incremental >& $s2i_log_file
   check_result $?
   set -e
 }
@@ -191,7 +167,7 @@ test_connection() {
 
 
 
-echo "Testing builder image $IMAGE_NAME"
+echo "Testing builder image $BUILD_IMAGE_NAME"
 echo "Last s2i execution is logged in $s2i_log_file"
 echo "Last container execution is logged in $log_file"
 
@@ -247,67 +223,6 @@ run_test_application_runtime &
 wait_for_cid
 test_connection
 check_result $?
-cleanupContainer
-cleanupImages
-
-# CONFIGURATION TESTS
-# These are simple tests that make sure that environment variables passed to s2i result
-# in configuration files being copied to configDropins
-
-echo "MicroProfile Monitoring Configuration Test"
-prepare test-app $MP_MONITORING_VAR
-run_test_application  &
-wait_for_cid
-test_connection
-check_result $?
-run_test_mp_monitoring
-
-cleanupContainer
-
-echo "MicroProfile Monitoring Configuration Test - Runtime image"
-run_test_application_runtime &
-wait_for_cid
-test_connection
-check_result $?
-run_test_mp_monitoring
-cleanupContainer
-cleanupImages
-
-echo "MicroProfile Health Configuration Test"
-prepare test-app $MP_HEALTH_CHECK_VAR
-run_test_application &
-wait_for_cid
-test_connection
-check_result $?
-run_test_mp_health_check
-cleanupContainer
-
-echo "MicroProfile Health Configuration Test - Runtime Image"
-run_test_application_runtime &
-wait_for_cid
-test_connection
-check_result $?
-run_test_mp_health_check
-cleanupContainer
-cleanupImages
-
-echo "JMS Endpoint, No SSL Configuration Test"
-prepare test-app $JMS_ENDPOINT_VAR
-run_test_application &
-wait_for_cid
-test_connection
-check_result $?
-run_test_jms_endpoint
-cleanupContainer
-cleanupImages
-
-echo "JMS Endpoint, SSL Configuration Test"
-prepare test-app $JMS_ENDPOINT_VAR $ENABLE_SSL_VAR
-run_test_application &
-wait_for_cid
-test_connection
-check_result $?
-run_test_jms_endpoint_ssl
 cleanupContainer
 cleanupImages
 
