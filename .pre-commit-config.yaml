@@ -1,102 +1,21 @@
-{
-  "exclude": {
-    "files": "^.pre-commit-config.yaml$",
-    "lines": null
-  },
-  "generated_at": "2023-06-13T18:09:10Z",
-  "plugins_used": [
-    {
-      "name": "AWSKeyDetector"
-    },
-    {
-      "name": "ArtifactoryDetector"
-    },
-    {
-      "name": "AzureStorageKeyDetector"
-    },
-    {
-      "base64_limit": 4.5,
-      "name": "Base64HighEntropyString"
-    },
-    {
-      "name": "BasicAuthDetector"
-    },
-    {
-      "name": "BoxDetector"
-    },
-    {
-      "name": "CloudantDetector"
-    },
-    {
-      "ghe_instance": "github.ibm.com",
-      "name": "GheDetector"
-    },
-    {
-      "name": "GitHubTokenDetector"
-    },
-    {
-      "hex_limit": 3,
-      "name": "HexHighEntropyString"
-    },
-    {
-      "name": "IbmCloudIamDetector"
-    },
-    {
-      "name": "IbmCosHmacDetector"
-    },
-    {
-      "name": "JwtTokenDetector"
-    },
-    {
-      "keyword_exclude": null,
-      "name": "KeywordDetector"
-    },
-    {
-      "name": "MailchimpDetector"
-    },
-    {
-      "name": "NpmDetector"
-    },
-    {
-      "name": "PrivateKeyDetector"
-    },
-    {
-      "name": "SlackDetector"
-    },
-    {
-      "name": "SoftlayerDetector"
-    },
-    {
-      "name": "SquareOAuthDetector"
-    },
-    {
-      "name": "StripeDetector"
-    },
-    {
-      "name": "TwilioKeyDetector"
-    }
-  ],
-  "results": {
-    "test/test-app-rest/src/main/webapp/index.html": [
-      {
-        "hashed_secret": "ad9328812a2bf947a81f8b3422047a194d152ecf",
-        "is_verified": false,
-        "line_number": 27,
-        "type": "Base64 High Entropy String",
-        "verified_result": null
-      },
-      {
-        "hashed_secret": "f1c4dfa73a7a850bb18efdee6a07af0999235185",
-        "is_verified": false,
-        "line_number": 64,
-        "type": "Base64 High Entropy String",
-        "verified_result": null
-      }
-    ]
-  },
-  "version": "0.13.1+ibm.47.dss",
-  "word_list": {
-    "file": null,
-    "hash": null
-  }
-}
+# This is an example configuration to enable detect-secrets in the pre-commit hook.
+# Add this file to the root folder of your repository.
+#
+# Read pre-commit hook framework https://pre-commit.com/ for more details about the structure of config yaml file and how git pre-commit would invoke each hook.
+#
+# This line indicates we will use the hook from ibm/detect-secrets to run scan during committing phase.
+repos:
+  - repo: https://github.com/ibm/detect-secrets
+    # If you desire to use a specific version of detect-secrets, you can replace `master` with other git revisions such as branch, tag or commit sha.
+    # You are encouraged to use static refs such as tags, instead of branch name
+    #
+    # Running "pre-commit autoupdate" automatically updates rev to latest tag
+    rev: 0.13.1+ibm.61.dss
+    hooks:
+      - id: detect-secrets # pragma: whitelist secret
+        # Add options for detect-secrets-hook binary. You can run `detect-secrets-hook --help` to list out all possible options.
+        # You may also run `pre-commit run detect-secrets` to preview the scan result.
+        # when "--baseline" without "--use-all-plugins", pre-commit scan with just plugins in baseline file
+        # when "--baseline" with "--use-all-plugins", pre-commit scan with all available plugins
+        # add "--fail-on-unaudited" to fail pre-commit for unaudited potential secrets
+        args: [--baseline, .secrets.baseline, --use-all-plugins]
