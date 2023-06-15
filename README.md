@@ -27,7 +27,7 @@ $ cd $IMAGE_DIR
 $ cekit build docker
 ```
 
-Example values for IMAGE_DIR are `images/java8/builder`, `images/java8/runtime`, `images/java11/builder`, or `images/java11/runtime`. 
+Example values for IMAGE_DIR are `images/java8/builder`, `images/java8/runtime`, `images/java11/builder`, `images/java11/runtime`,`images/java17/builder`, `images/java17/runtime` . 
 
 S2I Usage
 ---------

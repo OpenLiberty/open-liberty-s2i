@@ -59,6 +59,8 @@ jobs:
             JAVA8_RUNTIME_IMAGE_VERSION=${LIBERTY_VERSION}-runtime-java8
             JAVA11_IMAGE_VERSION=${LIBERTY_VERSION}-java11
             JAVA11_RUNTIME_IMAGE_VERSION=${LIBERTY_VERSION}-runtime-java11
+            JAVA17_IMAGE_VERSION=${LIBERTY_VERSION}-java17
+            JAVA17_RUNTIME_IMAGE_VERSION=${LIBERTY_VERSION}-runtime-java17            
             NAMESPACE=openliberty
             PLATFORM=open-liberty-s2i
             IMAGE_NAME=${NAMESPACE}/${PLATFORM}            
@@ -69,7 +71,7 @@ jobs:
             make
             
             echo Pushing the following versions of image ${IMAGE_NAME} to docker hub:
-            echo ${JAVA8_IMAGE_VERSION}, ${JAVA8_RUNTIME_IMAGE_VERSION}, ${JAVA11_IMAGE_VERSION}, ${JAVA11_RUNTIME_IMAGE_VERSION}
+            echo ${JAVA8_IMAGE_VERSION}, ${JAVA8_RUNTIME_IMAGE_VERSION}, ${JAVA11_IMAGE_VERSION}, ${JAVA11_RUNTIME_IMAGE_VERSION}, ${JAVA17_IMAGE_VERSION}, ${JAVA17_RUNTIME_IMAGE_VERSION}
                  
             echo Using ${JAVA8_IMAGE_VERSION} as 'latest'
            
@@ -90,3 +92,11 @@ jobs:
             docker push ${IMAGE_NAME}:${JAVA11_RUNTIME_IMAGE_VERSION}
             docker tag ${IMAGE_NAME}:${JAVA11_RUNTIME_IMAGE_VERSION} ${IMAGE_NAME}:runtime-java11
             docker push ${IMAGE_NAME}:runtime-java11
+
+            docker push ${IMAGE_NAME}:${JAVA17_IMAGE_VERSION}
+            docker tag ${IMAGE_NAME}:${JAVA17_IMAGE_VERSION} ${IMAGE_NAME}:java17
+            docker push ${IMAGE_NAME}:java17
+            
+            docker push ${IMAGE_NAME}:${JAVA17_RUNTIME_IMAGE_VERSION}
+            docker tag ${IMAGE_NAME}:${JAVA17_RUNTIME_IMAGE_VERSION} ${IMAGE_NAME}:runtime-java17
+            docker push ${IMAGE_NAME}:runtime-java17
