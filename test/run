@@ -59,7 +59,9 @@ prepare() {
   fi
 
   echo "s2i build ${s2i_args} ${test_dir}/$app ${BUILD_IMAGE_NAME}:${IMAGE_VERSION} ${BUILD_IMAGE_NAME}-testapp $@"
-  s2i build ${s2i_args} ${test_dir}/$app ${BUILD_IMAGE_NAME}:${IMAGE_VERSION} ${BUILD_IMAGE_NAME}-testapp $@ >& $s2i_log_file
+  #s2i build ${s2i_args} ${test_dir}/$app ${BUILD_IMAGE_NAME}:${IMAGE_VERSION} ${BUILD_IMAGE_NAME}-testapp $@ >& $s2i_log_file
+  s2i build ${s2i_args} ${test_dir}/$app ${BUILD_IMAGE_NAME}:${IMAGE_VERSION} ${BUILD_IMAGE_NAME}-testapp $@
+
   echo "s2i build ${s2i_args} ${test_dir}/$app ${BUILD_IMAGE_NAME}:${IMAGE_VERSION} ${BUILD_IMAGE_NAME}-runtime-testapp --runtime-image ${BUILD_IMAGE_NAME}:${RUNTIME_IMAGE_VERSION} --runtime-artifact /opt/ol/wlp/usr $@"
   s2i build ${s2i_args} ${test_dir}/$app ${BUILD_IMAGE_NAME}:${IMAGE_VERSION} ${BUILD_IMAGE_NAME}-runtime-testapp --runtime-image ${BUILD_IMAGE_NAME}:${RUNTIME_IMAGE_VERSION} --runtime-artifact /opt/ol/wlp/usr $@ >& $s2i_log_file
 
