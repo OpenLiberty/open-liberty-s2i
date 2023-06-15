@@ -1,8 +1,8 @@
 schema_version: 1
 
 name: openliberty/open-liberty-s2i
-version: 20.0.0.12-runtime-java17
-from: openliberty/open-liberty:20.0.0.12-full-java17-openj9-ubi
+version: 23.0.0.1-runtime-java17
+from: openliberty/open-liberty:23.0.0.1-full-java17-openj9-ubi
 description: "Open Liberty UBI runtime image with OpenJDK 17"
 labels:
     - name: io.k8s.description
