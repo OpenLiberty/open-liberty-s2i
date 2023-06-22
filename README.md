@@ -1,7 +1,7 @@
 Open Liberty UBI-min images for OpenShift S2I
 =============================================
 
-This repository contains the source for building Open Liberty Source to Image (S2I) builder and runtime images using Red Hat Universal Base Image (UBI) 7 and either Java 8 or Java 11. 
+This repository contains the source for building Open Liberty Source to Image (S2I) builder and runtime images using Red Hat Universal Base Image (UBI) 7 and Java 8,  Java 11 or Java 17. 
 
 More information on S2I can be found at https://github.com/openshift/source-to-image
 
