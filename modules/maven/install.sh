@@ -3,7 +3,7 @@
 set -e
 
     tar -C /usr/local -zxf /tmp/artifacts/maven.tar.gz \
-      && ln -sf /usr/local/apache-maven-3.9.2/bin/mvn /usr/local/bin/mvn 
+      && ln -sf /usr/local/apache-maven-3.9.3/bin/mvn /usr/local/bin/mvn 
 
 SCRIPT_DIR=$(dirname $0)
 ARTIFACTS_DIR=${SCRIPT_DIR}/artifacts
