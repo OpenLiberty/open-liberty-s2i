@@ -7,7 +7,7 @@ on:
 env:
   LANG: en_US.UTF-8
   S2I_URI: https://api.github.com/repos/openshift/source-to-image/releases/latest
-  CEKIT_VERSION: 3.13.0
+  CEKIT_VERSION: 3.5.0
 jobs:
   olci:
     name: Open Liberty S2I Build and Test
