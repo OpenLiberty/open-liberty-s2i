@@ -4,7 +4,7 @@ on:
     types: [published]
 env:
   LANG: en_US.UTF-8
-  S2I_URI: https://api.github.com/repos/openshift/source-to-image/releases/tags/v1.3.1
+  S2I_URI: https://api.github.com/repos/openshift/source-to-image/releases/latest
   CEKIT_VERSION: 3.2.1
   DOCKER_USERID: ${{ secrets.DOCKER_USERID }}
   LIBERTY_VERSION: ${{ github.event.release.tag_name }}
