@@ -58,6 +58,7 @@ prepare() {
     exit 1
   fi
 
+  echo  "DOCKER_API_VERSION ${DOCKER_API_VERSION}"
   echo "s2i build ${s2i_args} ${test_dir}/$app ${BUILD_IMAGE_NAME}:${IMAGE_VERSION} ${BUILD_IMAGE_NAME}-testapp $@"
   s2i build ${s2i_args} ${test_dir}/$app ${BUILD_IMAGE_NAME}:${IMAGE_VERSION} ${BUILD_IMAGE_NAME}-testapp $@ >& $s2i_log_file
 
@@ -173,6 +174,7 @@ echo "Last s2i execution is logged in $s2i_log_file"
 echo "Last container execution is logged in $log_file"
 
 echo "### Test deployment in default server using the apps directory and a provided server.xml."
+export DOCKER_API_VERSION="1.41"
 prepare test-app-rest $DEPLOY_TO_APPS_VAR
 
 # Verify the 'usage' script is working properly
