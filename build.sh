@@ -2,7 +2,7 @@
 SCRIPT_DIR=$(dirname $0)
 
 JAVA8_BASE_IMAGE_NAME="${NAMESPACE:=openliberty}/open-liberty:${LIBERTY_VERSION}-full-java8-openj9-ubi"
-JAVA8_BUILDER_IMAGE_NAME"${NAMESPACE:=}/ibm-semeru-runtimes:open-8-jdk"
+JAVA8_BUILDER_IMAGE_NAME="${NAMESPACE:=}/ibm-semeru-runtimes:open-8-jdk"
 JAVA11_BASE_IMAGE_NAME="${NAMESPACE:=openliberty}/open-liberty:${LIBERTY_VERSION}-full-java11-openj9-ubi"
 JAVA17_BASE_IMAGE_NAME="${NAMESPACE:=openliberty}/open-liberty:${LIBERTY_VERSION}-full-java17-openj9-ubi"
 
