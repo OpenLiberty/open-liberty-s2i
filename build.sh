@@ -2,12 +2,13 @@
 SCRIPT_DIR=$(dirname $0)
 
 JAVA8_BASE_IMAGE_NAME="${NAMESPACE:=openliberty}/open-liberty:${LIBERTY_VERSION}-full-java8-openj9-ubi"
+JAVA8_BUILDER_IMAGE_NAME"${NAMESPACE:=}/ibm-semeru-runtimes:open-8-jdk"
 JAVA11_BASE_IMAGE_NAME="${NAMESPACE:=openliberty}/open-liberty:${LIBERTY_VERSION}-full-java11-openj9-ubi"
 JAVA17_BASE_IMAGE_NAME="${NAMESPACE:=openliberty}/open-liberty:${LIBERTY_VERSION}-full-java17-openj9-ubi"
 
-echo "Building Java 8 Builder Image ${JAVA8_BASE_IMAGE_NAME}"
+echo "Building Java 8 Builder Image ${JAVA8_BUILDER_IMAGE_NAME}"
 pushd ${SCRIPT_DIR}/images/java8/builder
-cekit build --overrides '{"from": "'"${JAVA8_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA8_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
+cekit build --overrides '{"from": "'"${JAVA8_BUILDER_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA8_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
 popd
 
 echo "Building Java 8 Runtime Image"
@@ -52,4 +53,3 @@ if [[ ! -z "${TEST_MODE:-}" ]]; then
   echo "Testing versions ${JAVA17_IMAGE_VERSION} and ${JAVA17_RUNTIME_IMAGE_VERSION}"
   IMAGE_VERSION=${JAVA17_IMAGE_VERSION}; RUNTIME_IMAGE_VERSION=${JAVA17_RUNTIME_IMAGE_VERSION}; . ${SCRIPT_DIR}/test/run
 fi
-
