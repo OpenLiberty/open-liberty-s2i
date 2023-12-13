@@ -6,8 +6,8 @@ setup:
     #!/usr/bin/env bash
 
     set_env S2I_URI "https://api.github.com/repos/openshift/source-to-image/releases/tags/v1.3.8"
-    set_env CEKIT_VERSION "4.8.0"   
-    set_env LIBERTY_VERSION "23.0.0.11"
+    set_env CEKIT_VERSION "4.8.0"
+    set_env LIBERTY_VERSION "23.0.0.12"
     set_env DOCKER_API_VERSION="1.41"
 
 test:
@@ -30,7 +30,7 @@ static-scan:
   image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
   script: |
     #!/usr/bin/env bash
-    # scan for open liberty and websphere liberty submodules? 
+    # scan for open liberty and websphere liberty submodules?
     PERIODIC_SCAN=$(get_env periodic-rescan)
     PERIODIC_SCAN="$(echo "$PERIODIC_SCAN" | tr '[:upper:]' '[:lower:]')"
 
@@ -41,8 +41,8 @@ static-scan:
     read -r SONAR_HOST_URL <<< "$(get_env sonarqube | jq -r '.parameters.dashboard_url' | sed 's:/*$::')"
     read -r SONAR_USER <<< "$(get_env sonarqube | jq -r '.parameters.user_login')"
     SONARQUBE_INSTANCE_ID=$(get_env sonarqube | jq -r '.instance_id')
-    read -r SONAR_PASS <<< "$(jq -r --arg sonar_instance "$SONARQUBE_INSTANCE_ID" '[.services[] | select(."service_id"=="sonarqube")][] | select(."instance_id"==$sonar_instance) | .parameters.user_password' /toolchain/toolchain.json)"  
-    touch "$WORKSPACE"/open-liberty-s2i/sonar-project.properties   
+    read -r SONAR_PASS <<< "$(jq -r --arg sonar_instance "$SONARQUBE_INSTANCE_ID" '[.services[] | select(."service_id"=="sonarqube")][] | select(."instance_id"==$sonar_instance) | .parameters.user_password' /toolchain/toolchain.json)"
+    touch "$WORKSPACE"/open-liberty-s2i/sonar-project.properties
     cat << EOF > "$WORKSPACE"/open-liberty-s2i/sonar-project.properties
     sonar.projectKey=liberty-eks-aws
     sonar.host.url=$SONAR_HOST_URL
@@ -76,7 +76,7 @@ containerize:
       echo "Skipping build. This is a periodic run that is only meant to produce CVE information."
       exit 0
     else
-      if [[ "$PIPELINE_DEBUG" == 1 ]]; then 
+      if [[ "$PIPELINE_DEBUG" == 1 ]]; then
         trap env EXIT
         env
         set -x
@@ -84,13 +84,13 @@ containerize:
     fi
 
     dnf -y install python3-devel krb5-devel
-    # Download cekit 
+    # Download cekit
     CEKIT_VERSION=$(get_env CEKIT_VERSION)
     pip3 install virtualenv
     mkdir ~/cekit${CEKIT_VERSION}
     python3 -m venv ~/cekit${CEKIT_VERSION}
     pip3 install --upgrade pip
-    pip3 install cekit==${CEKIT_VERSION} docker==5.0.3 docker-squash odcs behave lxml setuptools_rust urllib3==1.26.15 packaging==21.3 
+    pip3 install cekit==${CEKIT_VERSION} docker==5.0.3 docker-squash odcs behave lxml setuptools_rust urllib3==1.26.15 packaging==21.3
     . ~/cekit${CEKIT_VERSION}/bin/activate
     echo "***** Installed CEKIT version ${CEKIT_VERSION} *****"
     cekit --version
@@ -116,9 +116,9 @@ containerize:
     echo "***** Installed S2I  *****"
     s2i version
     cd -
-       
+
     echo "${PIPELINE_PASSWORD}" | docker login "${PIPELINE_REGISTRY}" -u "${PIPELINE_USERNAME}" --password-stdin
-    
+
     echo "***** Running Tests *****"
     make -e test PROD_NAMESPACE=cp/olc
 
@@ -130,7 +130,7 @@ containerize:
     fi
 
     echo "***** Available Docker Images *****"
-    docker image ls       
+    docker image ls
 
     LIBERTY_VERSION=$(get_env LIBERTY_VERSION)
     JAVA8_IMAGE_VERSION=${LIBERTY_VERSION}-java8
@@ -141,36 +141,36 @@ containerize:
     JAVA17_RUNTIME_IMAGE_VERSION=${LIBERTY_VERSION}-runtime-java17
     NAMESPACE=cp/olc
     PLATFORM=open-liberty-s2i
-    IMAGE_NAME=${NAMESPACE}/${PLATFORM}   
+    IMAGE_NAME=${NAMESPACE}/${PLATFORM}
 
     echo Pushing the following versions of image ${IMAGE_NAME} to ${PIPELINE_REGISTRY}:
     echo ${JAVA8_IMAGE_VERSION}, ${JAVA8_RUNTIME_IMAGE_VERSION}, ${JAVA11_IMAGE_VERSION}, ${JAVA11_RUNTIME_IMAGE_VERSION}, ${JAVA17_IMAGE_VERSION}, ${JAVA17_RUNTIME_IMAGE_VERSION}
- 
+
     docker tag ${IMAGE_NAME}:${JAVA8_IMAGE_VERSION} ${PIPELINE_REGISTRY}/${IMAGE_NAME}:${JAVA8_IMAGE_VERSION}
     docker push ${PIPELINE_REGISTRY}/${IMAGE_NAME}:${JAVA8_IMAGE_VERSION}
     docker tag ${IMAGE_NAME}:${JAVA8_IMAGE_VERSION} ${PIPELINE_REGISTRY}/${IMAGE_NAME}:java8
     docker push ${PIPELINE_REGISTRY}/${IMAGE_NAME}:java8
-            
+
     docker tag ${IMAGE_NAME}:${JAVA8_RUNTIME_IMAGE_VERSION} ${PIPELINE_REGISTRY}/${IMAGE_NAME}:${JAVA8_RUNTIME_IMAGE_VERSION}
     docker push ${PIPELINE_REGISTRY}/${IMAGE_NAME}:${JAVA8_RUNTIME_IMAGE_VERSION}
     docker tag ${IMAGE_NAME}:${JAVA8_RUNTIME_IMAGE_VERSION} ${PIPELINE_REGISTRY}/${IMAGE_NAME}:runtime-java8
     docker push ${PIPELINE_REGISTRY}/${IMAGE_NAME}:runtime-java8
-            
+
     docker tag ${IMAGE_NAME}:${JAVA11_IMAGE_VERSION} ${PIPELINE_REGISTRY}/${IMAGE_NAME}:${JAVA11_IMAGE_VERSION}
     docker push ${PIPELINE_REGISTRY}/${IMAGE_NAME}:${JAVA11_IMAGE_VERSION}
     docker tag ${IMAGE_NAME}:${JAVA11_IMAGE_VERSION} ${PIPELINE_REGISTRY}/${IMAGE_NAME}:java11
     docker push ${PIPELINE_REGISTRY}/${IMAGE_NAME}:java11
-            
+
     docker tag ${IMAGE_NAME}:${JAVA11_RUNTIME_IMAGE_VERSION} ${PIPELINE_REGISTRY}/${IMAGE_NAME}:${JAVA11_RUNTIME_IMAGE_VERSION}
     docker push ${PIPELINE_REGISTRY}/${IMAGE_NAME}:${JAVA11_RUNTIME_IMAGE_VERSION}
     docker tag ${IMAGE_NAME}:${JAVA11_RUNTIME_IMAGE_VERSION} ${PIPELINE_REGISTRY}/${IMAGE_NAME}:runtime-java11
     docker push ${PIPELINE_REGISTRY}/${IMAGE_NAME}:runtime-java11
-    
+
     docker tag ${IMAGE_NAME}:${JAVA17_IMAGE_VERSION} ${PIPELINE_REGISTRY}/${IMAGE_NAME}:${JAVA17_IMAGE_VERSION}
     docker push ${PIPELINE_REGISTRY}/${IMAGE_NAME}:${JAVA17_IMAGE_VERSION}
     docker tag ${IMAGE_NAME}:${JAVA17_IMAGE_VERSION} ${PIPELINE_REGISTRY}/${IMAGE_NAME}:java17
     docker push ${PIPELINE_REGISTRY}/${IMAGE_NAME}:java17
-            
+
     docker tag ${IMAGE_NAME}:${JAVA17_RUNTIME_IMAGE_VERSION} ${PIPELINE_REGISTRY}/${IMAGE_NAME}:${JAVA17_RUNTIME_IMAGE_VERSION}
     docker push ${PIPELINE_REGISTRY}/${IMAGE_NAME}:${JAVA17_RUNTIME_IMAGE_VERSION}
     docker tag ${IMAGE_NAME}:${JAVA17_RUNTIME_IMAGE_VERSION} ${PIPELINE_REGISTRY}/${IMAGE_NAME}:runtime-java17
@@ -181,7 +181,7 @@ containerize:
     for i in "${tags[@]}"
     do
       IMAGE=$PIPELINE_REGISTRY/$NAMESPACE/$PIPELINE_S2I_IMAGE:$i
-      DIGEST="$(skopeo inspect docker://$IMAGE | grep Digest | grep -o 'sha[^\"]*')"     
+      DIGEST="$(skopeo inspect docker://$IMAGE | grep Digest | grep -o 'sha[^\"]*')"
       echo "Saving artifact s2i-$i name=$IMAGE digest=$DIGEST type=$TYPE"
       save_artifact s2i-$i type="image" name="$IMAGE" "digest=$DIGEST" arch="amd64"
     done
@@ -200,8 +200,8 @@ containerize:
     source "${COMMONS_PATH}/whitesource/whitesource_unified_agent_scan.sh"
 
 
-  
-    
+
+
 
 sign-artifact:
   abort_on_failure: false
@@ -261,7 +261,7 @@ acceptance-test:
       echo "Skipping unit-tests. This is a periodic run that is only meant to produce CVE information."
       exit 0
     fi
-  
+
 scan-artifact:
   abort_on_failure: false
   image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.15
@@ -294,7 +294,7 @@ release:
     fi
     SKIP_ALL_CHECKS=$(get_env SKIP_ALL_CHECKS "false")
     echo "**** Running Evaluator ****"
-    ./pipeline/evaluator.sh      
+    ./pipeline/evaluator.sh
     if [[ $? == 0 || $SKIP_ALL_CHECKS == "true" ]]; then
       if [[  $SKIP_ALL_CHECKS == "true" ]]; then
         echo "Skipping image scan checks"
