@@ -11,6 +11,7 @@ PROD_NAMESPACE?=openliberty
 PLATFORM=open-liberty-s2i
 IMAGE_NAME=${NAMESPACE}/${PLATFORM}
 BUILD_IMAGE_NAME=${PROD_NAMESPACE}/${PLATFORM}
+DOCKER_HOST=tcp://localhost:2376
 
 build = ./build.sh
 
