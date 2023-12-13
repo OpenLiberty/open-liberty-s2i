@@ -1,4 +1,4 @@
-LIBERTY_VERSION=23.0.0.11
+LIBERTY_VERSION=23.0.0.12
 
 JAVA8_IMAGE_VERSION=$(LIBERTY_VERSION)-java8
 JAVA8_RUNTIME_IMAGE_VERSION=$(LIBERTY_VERSION)-runtime-java8
@@ -11,7 +11,6 @@ PROD_NAMESPACE?=openliberty
 PLATFORM=open-liberty-s2i
 IMAGE_NAME=${NAMESPACE}/${PLATFORM}
 BUILD_IMAGE_NAME=${PROD_NAMESPACE}/${PLATFORM}
-DOCKER_HOST=tcp://localhost:2376
 
 build = ./build.sh
 
@@ -34,4 +33,3 @@ build:
 .PHONY: test
 test:
 	$(script_env) TEST_MODE=true $(build)
-
