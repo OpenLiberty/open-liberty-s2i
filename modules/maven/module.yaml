@@ -7,8 +7,7 @@ description: "Module used to install Maven 3.8.8"
 # Defined artifacts that are used to build the image
 artifacts:
   - name: maven.tar.gz
-    url: https://www.apache.org/dist/maven/maven-3/3.8.8/binaries/apache-maven-3.8.8-bin.tar.gz 
-    sha512: 332088670d14fa9ff346e6858ca0acca304666596fec86eea89253bd496d3c90deae2be5091be199f48e09d46cec817c6419d5161fb4ee37871503f472765d00
+    url: https://www.apache.org/dist/maven/maven-3/3.8.8/binaries/apache-maven-3.8.8-bin.tar.gz
+    md5: c24c30660f9beaab4961ff5111d76875
 execute:
   - script: install.sh
-
