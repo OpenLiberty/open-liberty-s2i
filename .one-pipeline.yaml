@@ -196,8 +196,8 @@ containerize:
     done < <(list_artifacts)
 
     echo "MEND unified agent scan"
-    chmod +x "${COMMONS_PATH}/whitesource/whitesource_unified_agent_scan.sh"
-    source "${COMMONS_PATH}/whitesource/whitesource_unified_agent_scan.sh"
+    chmod +x "${COMMONS_PATH}"/mend/mend_unified_agent_scan.sh
+    source "${COMMONS_PATH}"/mend/mend_unified_agent_scan.sh
 
 
 
