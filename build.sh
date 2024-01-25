@@ -4,6 +4,7 @@ SCRIPT_DIR=$(dirname $0)
 JAVA8_BASE_IMAGE_NAME="${NAMESPACE:=openliberty}/open-liberty:${LIBERTY_VERSION}-full-java8-openj9-ubi"
 JAVA11_BASE_IMAGE_NAME="${NAMESPACE:=openliberty}/open-liberty:${LIBERTY_VERSION}-full-java11-openj9-ubi"
 JAVA17_BASE_IMAGE_NAME="${NAMESPACE:=openliberty}/open-liberty:${LIBERTY_VERSION}-full-java17-openj9-ubi"
+JAVA21_BASE_IMAGE_NAME="${NAMESPACE:=openliberty}/open-liberty:${LIBERTY_VERSION}-full-java21-openj9-ubi"
 
 echo "Building Java 8 Builder Image ${JAVA8_BASE_IMAGE_NAME}"
 pushd ${SCRIPT_DIR}/images/java8/builder
@@ -53,3 +54,18 @@ if [[ ! -z "${TEST_MODE:-}" ]]; then
   IMAGE_VERSION=${JAVA17_IMAGE_VERSION}; RUNTIME_IMAGE_VERSION=${JAVA17_RUNTIME_IMAGE_VERSION}; . ${SCRIPT_DIR}/test/run
 fi
 
+echo "Building Java 21 Builder Image"
+pushd ${SCRIPT_DIR}/images/java21/builder
+cekit build --overrides '{"from": "'"${JAVA21_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA21_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
+popd
+
+echo "Building Java 21 Runtime Image"
+pushd ${SCRIPT_DIR}/images/java21/runtime
+cekit build --overrides '{"from": "'"${JAVA21_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA21_RUNTIME_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
+popd
+
+# Test Java 21 image if TEST_MODE is set
+if [[ ! -z "${TEST_MODE:-}" ]]; then
+  echo "Testing versions ${JAVA21_IMAGE_VERSION} and ${JAVA21_RUNTIME_IMAGE_VERSION}"
+  IMAGE_VERSION=${JAVA21_IMAGE_VERSION}; RUNTIME_IMAGE_VERSION=${JAVA21_RUNTIME_IMAGE_VERSION}; . ${SCRIPT_DIR}/test/run
+fi
