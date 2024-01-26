@@ -69,38 +69,42 @@ jobs:
            sudo mv s2i /usr/bin
            which s2i
            s2i version
-      - name: Build 
+      - name: Build
         run: |
           . ~/cekit${{ env.CEKIT_VERSION }}/bin/activate
           make
           docker image ls
       - name: Push to dockerhub
-        if: env.DOCKERHUB_USERNAME != '' 
-        run: |        
+        if: env.DOCKERHUB_USERNAME != ''
+        run: |
             BUILDER_IMAGE="openliberty/open-liberty-s2i:${LIBERTY_VERSION}-${JAVA_VERSION}"
             RUNTIME_IMAGE="openliberty/open-liberty-s2i:${LIBERTY_VERSION}-runtime-${JAVA_VERSION}"
-          
+
             echo Pushing to Docker Hub with the tag :${VERSION}-${JAVA_VERSION}
             echo BUILDER_IMAGE: ${BUILDER_IMAGE}
             echo RUNTIME_IMAGE: ${RUNTIME_IMAGE}
             echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{secrets.DOCKERHUB_USERNAME }}" --password-stdin
-                       
-            docker push ${BUILDER_IMAGE}           
+
+            docker push ${BUILDER_IMAGE}
             docker push ${RUNTIME_IMAGE}
       - name: Run Tests
-        run: |          
+        run: |
           JAVA8_IMAGE_VERSION=$(JAVA8_IMAGE_VERSION) \
-	        JAVA8_RUNTIME_IMAGE_VERSION=$(JAVA8_RUNTIME_IMAGE_VERSION) \
-	        JAVA11_IMAGE_VERSION=$(JAVA11_IMAGE_VERSION) \
-	        JAVA11_RUNTIME_IMAGE_VERSION=$(JAVA11_RUNTIME_IMAGE_VERSION) \
-	        JAVA17_IMAGE_VERSION=$(JAVA17_IMAGE_VERSION) \
-	        JAVA17_RUNTIME_IMAGE_VERSION=$(JAVA17_RUNTIME_IMAGE_VERSION)         
+          JAVA8_RUNTIME_IMAGE_VERSION=$(JAVA8_RUNTIME_IMAGE_VERSION) \
+          JAVA11_IMAGE_VERSION=$(JAVA11_IMAGE_VERSION) \
+          JAVA11_RUNTIME_IMAGE_VERSION=$(JAVA11_RUNTIME_IMAGE_VERSION) \
+          JAVA17_IMAGE_VERSION=$(JAVA17_IMAGE_VERSION) \
+          JAVA17_RUNTIME_IMAGE_VERSION=$(JAVA17_RUNTIME_IMAGE_VERSION)  \
+          JAVA21_IMAGE_VERSION=$(JAVA21_IMAGE_VERSION) \
+          JAVA21_RUNTIME_IMAGE_VERSION=$(JAVA21_RUNTIME_IMAGE_VERSION) 
           export IMAGE_NAME=openliberty/open-liberty-s2i
           export JAVA8_IMAGE_VERSION=$(LIBERTY_VERSION)-java8
-          export JAVA8_RUNTIME_IMAGE_VERSION=$(LIBERTY_VERSION)-runtime-java8 
+          export JAVA8_RUNTIME_IMAGE_VERSION=$(LIBERTY_VERSION)-runtime-java8
           export JAVA11_IMAGE_VERSION=$(LIBERTY_VERSION)-java11
           export JAVA11_RUNTIME_IMAGE_VERSION=$(LIBERTY_VERSION)-runtime-java11
           export JAVA17_IMAGE_VERSION=$(LIBERTY_VERSION)-java17
-          export JAVA17_RUNTIME_IMAGE_VERSION=$(LIBERTY_VERSION)-runtime-java17   
+          export JAVA17_RUNTIME_IMAGE_VERSION=$(LIBERTY_VERSION)-runtime-java17
+          export JAVA21_IMAGE_VERSION=$(LIBERTY_VERSION)-java21
+          export JAVA21_RUNTIME_IMAGE_VERSION=$(LIBERTY_VERSION)-runtime-java21
           . ~/cekit${{ env.CEKIT_VERSION }}/bin/activate
           ./test/run

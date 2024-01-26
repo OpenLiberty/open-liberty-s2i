@@ -62,6 +62,9 @@ containerize:
   abort_on_failure: true
   dind: true
   image: icr.io/continuous-delivery/pipeline/pipeline-base-ubi:3.12
+  env:
+  - name: DOCKER_HOST
+    value: tcp://localhost:2376
   script: |
     #!/usr/bin/env bash
     echo "*** OS release ***"

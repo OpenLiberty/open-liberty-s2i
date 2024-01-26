@@ -4,7 +4,7 @@ SCRIPT_DIR=$(dirname $0)
 JAVA8_BASE_IMAGE_NAME="${NAMESPACE:=openliberty}/open-liberty:${LIBERTY_VERSION}-full-java8-openj9-ubi"
 JAVA11_BASE_IMAGE_NAME="${NAMESPACE:=openliberty}/open-liberty:${LIBERTY_VERSION}-full-java11-openj9-ubi"
 JAVA17_BASE_IMAGE_NAME="${NAMESPACE:=openliberty}/open-liberty:${LIBERTY_VERSION}-full-java17-openj9-ubi"
-JAVA21_BASE_IMAGE_NAME="${NAMESPACE:=openliberty}/open-liberty:${LIBERTY_VERSION}-full-java21-openj9-ubi"
+JAVA21_BASE_IMAGE_NAME="${NAMESPACE:=openliberty}/open-liberty:${LIBERTY_VERSION}-full-java21-openj9-ubi-minimal"
 
 echo "Building Java 8 Builder Image ${JAVA8_BASE_IMAGE_NAME}"
 pushd ${SCRIPT_DIR}/images/java8/builder
