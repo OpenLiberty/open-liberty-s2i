@@ -1,7 +1,7 @@
 Open Liberty UBI-min images for OpenShift S2I
 =============================================
 
-This repository contains the source for building Open Liberty Source to Image (S2I) builder and runtime images using Red Hat Universal Base Image (UBI) 7 and Java 8,  Java 11 or Java 17. 
+This repository contains the source for building Open Liberty Source to Image (S2I) builder and runtime images using Red Hat Universal Base Image (UBI) 7 and Java 8,  Java 11, Java 17 or Java 21.
 
 More information on S2I can be found at https://github.com/openshift/source-to-image
 
@@ -27,7 +27,7 @@ $ cd $IMAGE_DIR
 $ cekit build docker
 ```
 
-Example values for IMAGE_DIR are `images/java8/builder`, `images/java8/runtime`, `images/java11/builder`, `images/java11/runtime`,`images/java17/builder`, `images/java17/runtime` . 
+Example values for IMAGE_DIR are `images/java8/builder`, `images/java8/runtime`, `images/java11/builder`, `images/java11/runtime`,`images/java17/builder`, `images/java17/runtime`, `images/java21/builder`, `images/java21/runtime` .
 
 S2I Usage
 ---------
@@ -47,10 +47,10 @@ $ curl 127.0.0.1:9080/ROOT
 
 S2I Runtime Images
 ------------------
-Use the following commands to build and test a lightweight runtime image 
+Use the following commands to build and test a lightweight runtime image
 
 ```
-$ s2i build git://github.com/openshift/openshift-jee-sample openliberty/open-liberty-s2i:latest open-liberty-runtime-test --runtime-image openliberty/open-liberty-s2i:20.0.0.12-runtime-java8 --runtime-artifact /opt/ol/wlp/usr/servers/defaultServer/dropins 
+$ s2i build git://github.com/openshift/openshift-jee-sample openliberty/open-liberty-s2i:latest open-liberty-runtime-test --runtime-image openliberty/open-liberty-s2i:20.0.0.12-runtime-java8 --runtime-artifact /opt/ol/wlp/usr/servers/defaultServer/dropins
 $ docker run -p 9080:9080 open-liberty-runtime-test
 ```
 
@@ -58,7 +58,7 @@ More information on the Open Liberty runtime image and available options is avai
 
 Test
 ----
-The tests for this repository check basic functionality of a JEE application built on top of the Open Liberty S2I images. 
+The tests for this repository check basic functionality of a JEE application built on top of the Open Liberty S2I images.
 ```
 $ make test
 ```
@@ -66,17 +66,17 @@ $ make test
 S2I Build Behavior
 --------------------
 
-If a pom.xml file is found in the root of the source tree, it will be built using maven. 
+If a pom.xml file is found in the root of the source tree, it will be built using maven.
 
 If the root of the source tree contains a file named `Dockerfile` and a directory named `maven` then the build will assume that the source tree is the output of the [fabric8 maven plugin](https://github.com/fabric8io/fabric8-maven-plugin)
 
 If the environment variable `LIBERTY_RUNNABLE_JAR` is set, the build will attempt to copy that file to `/opt/ol/ol-runnable.jar`. At runtime, S2I will run that jar file instead of running the normal Liberty instance.
 
-If a `server.xml` file exists in the directory `src/main/liberty/config` it will be copied to the config directory of the Liberty instance. 
+If a `server.xml` file exists in the directory `src/main/liberty/config` it will be copied to the config directory of the Liberty instance.
 
-If the directory `src/wlp/usr` exists, it will be copied to the `wlp` directory o the Libert instance. 
+If the directory `src/wlp/usr` exists, it will be copied to the `wlp` directory o the Libert instance.
 
-All `WAR`, `JAR`, `EAR`, and `RAR` files from the build will be copied to either the `apps` or `dropins` directory the Liberty instance depending on the value of the `DEPLOY_TO_APPS` environment variable. 
+All `WAR`, `JAR`, `EAR`, and `RAR` files from the build will be copied to either the `apps` or `dropins` directory the Liberty instance depending on the value of the `DEPLOY_TO_APPS` environment variable.
 
 
 Environment variables to be used at s2i build time
@@ -91,7 +91,7 @@ The following environment variables can be passed to the S2I build process to cu
   *  Description: Enable Transport Security in Liberty by adding the `transportSecurity-1.0` feature (includes support for SSL).
   *  XML Snippet Location:  [keystore.xml](https://github.com/OpenLiberty/ci.docker/tree/master/common/helpers/build/configuration_snippets/keystore.xml).
 
-The following environment variables are now deprecated. Support will be removed in the future. 
+The following environment variables are now deprecated. Support will be removed in the future.
 
 * `HTTP_ENDPOINT`
   *  Description: Add configuration properties for an HTTP endpoint.
@@ -112,17 +112,17 @@ The following environment variables are now deprecated. Support will be removed 
   *  XML Snippet Location: [jms-ssl-endpoint.xml](https://github.com/OpenLiberty/ci.docker/tree/master/common/helpers/build/configuration_snippets/jms-ssl-endpoint.xml) when SSL is enabled. Otherwise, [jms-endpoint.xml](https://github.com/OpenLiberty/ci.docker/tree/master/common/helpers/build/configuration_snippets/jms-endpoint.xml)
 
 
-Server Configuration 
+Server Configuration
 --------------------------------------------------
 
-If you want to use your own server.xml file rather than the default, it should be present in the `src/main/liberty/config` directory. 
+If you want to use your own server.xml file rather than the default, it should be present in the `src/main/liberty/config` directory.
 
   OpenShift `oc` usage
 --------------------
 
 If your openshift installation doesn't already contain the Open Liberty image:
 
-* Adding the image streams: `oc create -f imagestreams/openliberty-ubi-min.json` 
+* Adding the image streams: `oc create -f imagestreams/openliberty-ubi-min.json`
 An `Open Liberty` imagestream will be created.
 
 * When adding the `Open Liberty` imagestream to the `openshift` namespace, the OpenShift catalog is automatically populated with a the template `Open Liberty` allowing you to
