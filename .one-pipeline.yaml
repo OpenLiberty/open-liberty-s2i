@@ -7,7 +7,7 @@ setup:
 
     set_env S2I_URI "https://api.github.com/repos/openshift/source-to-image/releases/tags/v1.3.8"
     set_env CEKIT_VERSION "4.9.1"
-    set_env LIBERTY_VERSION "24.0.0.1"
+    set_env LIBERTY_VERSION "24.0.0.2"
     set_env DOCKER_API_VERSION="1.41"
 
 test:
