@@ -55,7 +55,7 @@ static-scan:
     EOF
     chmod -x "$WORKSPACE"/open-liberty-s2i/sonar-project.properties
     #echo "$SONAR_PASS" >> /tmp/sonarqube-token
-    "${ONE_PIPELINE_PATH}"/internal/sonarqube/sonarqube_run
+    "${COMMONS_PATH}"/internal/sonarqube/sonarqube_run
 
 
 containerize:
@@ -320,7 +320,7 @@ release:
       echo "Cloning inventory repository: $INVENTORY_REPO"
       cd "$WORKSPACE"
       APP_TOKEN_PATH="$WORKSPACE/secrets/app-token"
-      . "${ONE_PIPELINE_PATH}"/git/clone_repo \
+      . "${COMMONS_PATH}"/git/clone_repo \
         "$INVENTORY_REPO" \
         "master"  \
         "" \
