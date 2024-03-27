@@ -47,6 +47,7 @@ static-scan:
     sonar.projectKey=liberty-eks-aws
     sonar.host.url=$SONAR_HOST_URL
     sonar.sources=.
+    sonar.exclusions=test/**/*.java
     sonar.login=$SONAR_USER
     sonar.password=$SONAR_PASS
     sonar.c.file.suffixes=-
