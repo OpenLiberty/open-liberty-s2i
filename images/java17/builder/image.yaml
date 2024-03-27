@@ -2,7 +2,7 @@ schema_version: 1
 
 name: openliberty/open-liberty-s2i
 version: 23.0.0.1-java17
-from: openliberty/open-liberty:23.0.0.1-full-java17-openj9-ubi
+from: icr.io/appcafe:23.0.0.1-full-java17-openj9-ubi
 description: "Open Liberty UBI image with OpenJDK17"
 labels:
     - name: io.k8s.description
