@@ -2,7 +2,7 @@ schema_version: 1
 
 name: openliberty/open-liberty-s2i
 version: 24.0.0.1-runtime-java21
-from: icr.io/appcafe:24.0.0.1-full-java21-openj9-ubi
+from: icr.io/appcafe/open-liberty:24.0.0.1-full-java21-openj9-ubi
 description: "Open Liberty UBI runtime image with OpenJDK 21"
 labels:
     - name: io.k8s.description

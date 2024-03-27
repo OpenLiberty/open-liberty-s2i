@@ -2,7 +2,7 @@ schema_version: 1
 
 name: openliberty/open-liberty-s2i
 version: 20.0.0.12-runtime-java8
-from: icr.io/appcafe:20.0.0.12-full-java8-openj9-ubi
+from: icr.io/appcafe/open-liberty:20.0.0.12-full-java8-openj9-ubi
 description: "Open Liberty UBI runtime image with OpenJDK8"
 
 labels:
