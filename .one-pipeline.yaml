@@ -55,7 +55,7 @@ static-scan:
     EOF
     chmod -x "$WORKSPACE"/open-liberty-s2i/sonar-project.properties
     #echo "$SONAR_PASS" >> /tmp/sonarqube-token
-    "${COMMONS_PATH}"/sonarqube/sonarqube_run
+    "${COMMONS_PATH}"/sonarqube/sonarqube_run.sh
 
 
 containerize:
