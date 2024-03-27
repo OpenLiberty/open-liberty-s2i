@@ -11,7 +11,7 @@ fi
 
 export WORKSPACE
 
-. "${COMMONS_PATH}"/internal/pipeline/variables_config
+. "${COMMONS_PATH}"/pipeline/variables_config
 . "${COMMONS_PATH}"/tools/retry
 
 cd "$WORKSPACE"
@@ -31,15 +31,15 @@ GHE_REPO=${INVENTORY_REPO##*/}
 curl  -H "Accept: application/vnd.github.v3+json"  -H "Authorization: token $(get_env git-token)" https://github.ibm.com/api/v3/repos/${GHE_ORG}/${GHE_REPO}/releases -d "{\"tag_name\": \"$(get_env version)\",\"name\": \"$(get_env version)\",\"draft\": false,\"prerelease\": false}"
 
 set_env ibmcloud-api "cloud.ibm.com"
-. "${COMMONS_PATH}"/internal/security-compliance/scan
+. "${COMMONS_PATH}"/security-compliance/scan
 
-. "${COMMONS_PATH}"/internal/doi/publish_acceptance_tests
+. "${COMMONS_PATH}"/doi/publish_acceptance_tests
 
 #publish_acceptance_test "$(get_env ACCEPTANCE_TESTS_TASK_NAME)" "$(get_env ACCEPTANCE_TESTS_STEP_NAME)" "com.ibm.acceptance_tests"
 
 # collector_cd
 echo "Processing 'build-image-signing' ..."
-. "${COMMONS_PATH}"/internal/evidence/collector \
+. "${COMMONS_PATH}"/evidence/collector \
   "$(get_env IMAGE_SIGNING_TASK_NAME)"               `# task_name` \
   "$(get_env IMAGE_SIGNING_STEP_NAME)"               `# step_name` \
   "sign-artifact"                                    `# stage` \
@@ -52,7 +52,7 @@ echo "Processing 'build-image-signing' ..."
   ""                                                 `# artifacts`
 
 echo "Processing 'acceptance-test' ..."
-. "${COMMONS_PATH}"/internal/evidence/collector \
+. "${COMMONS_PATH}"/evidence/collector \
   "$(get_env ACCEPTANCE_TESTS_TASK_NAME)"            `# task_name` \
   "$(get_env ACCEPTANCE_TESTS_STEP_NAME)"            `# step_name` \
   "acceptance-test"                                  `# stage` \
@@ -66,12 +66,12 @@ echo "Processing 'acceptance-test' ..."
 
 echo -e "\n"
 
-#. "${COMMONS_PATH}"/internal/evidence/create_summary "from-every-inventory-entry" "include_cd_evidence"
+#. "${COMMONS_PATH}"/evidence/create_summary "from-every-inventory-entry" "include_cd_evidence"
 
-#. "${COMMONS_PATH}"/internal/evidence/upload_summary
+#. "${COMMONS_PATH}"/evidence/upload_summary
 
 # collector_cd_final
-. "${COMMONS_PATH}"/internal/evidence/upload_pipeline_data
+. "${COMMONS_PATH}"/evidence/upload_pipeline_data
 
 printf "\n\nCollect and upload pipeline logs\n\n" >&2
 upload_pipeline_task_logs "cd"
@@ -81,6 +81,6 @@ upload_pipeline_run_data "cd"
 
 echo -e "\n"
 
-"${COMMONS_PATH}/internal/slack/generate_cd_end_message.py" | "${COMMONS_PATH}/internal/slack/post_message.py" || true
+"${COMMONS_PATH}/slack/generate_cd_end_message.py" | "${COMMONS_PATH}/slack/post_message.py" || true
 
-#. "${COMMONS_PATH}"/internal/pipeline/evaluator_cd
+#. "${COMMONS_PATH}"/pipeline/evaluator_cd
