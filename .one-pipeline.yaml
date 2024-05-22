@@ -94,7 +94,7 @@ containerize:
     mkdir ~/cekit${CEKIT_VERSION}
     python3 -m venv ~/cekit${CEKIT_VERSION}
     pip3 install --upgrade pip
-    pip3 install cekit==${CEKIT_VERSION} docker==5.0.3 docker-squash odcs behave lxml setuptools_rust urllib3==1.26.15 packaging==21.3
+    pip3 install cekit==${CEKIT_VERSION} docker==5.0.3 docker-squash odcs behave lxml setuptools_rust urllib3==1.26.15 packaging==21.3 requests==2.31.0
     . ~/cekit${CEKIT_VERSION}/bin/activate
     echo "***** Installed CEKIT version ${CEKIT_VERSION} *****"
     cekit --version
