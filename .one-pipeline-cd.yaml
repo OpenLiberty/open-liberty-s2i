@@ -81,7 +81,7 @@ deploy:
     done
 
 sign-artifact:
-  image: docker-eu-public.artifactory.swg-devops.com/wcp-compliance-automation-team-docker-local/csso-image-sign:6.0.0@sha256:3499f75eb669416536f0d680104e7e9e37147c168459152d716a1fbf9b1af5a2
+  image: icr.io/continuous-delivery/toolchains/devsecops/csso-image-sign:8.0.0@sha256:4fa72947d3b97c029b035f5c0b458184808f294a417b847b4935015d3c0744d3
   script: |
     #!/usr/bin/env bash
     echo "sign-artifact stage"
@@ -96,7 +96,7 @@ sign-artifact:
     cat ols2i.pub
 
 acceptance-test:
-  image: docker-eu-public.artifactory.swg-devops.com/wcp-compliance-automation-team-docker-local/csso-image-sign:6.0.0@sha256:3499f75eb669416536f0d680104e7e9e37147c168459152d716a1fbf9b1af5a2
+  image: icr.io/continuous-delivery/toolchains/devsecops/csso-image-sign:8.0.0@sha256:4fa72947d3b97c029b035f5c0b458184808f294a417b847b4935015d3c0744d3
   script: |
     #!/usr/bin/env bash
     echo "acceptance-test stage"
