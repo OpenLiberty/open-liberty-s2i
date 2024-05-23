@@ -89,7 +89,7 @@ sign-artifact:
     set_env IMAGE_SIGNING_TASK_NAME "build-sign-artifact"
     set_env IMAGE_SIGNING_STEP_NAME "run-stage"
     "${COMMONS_PATH}"/ciso/sign_icr.sh
-    fingerprint=$(/opt/Garantir/bin/gpg --homedir $HOME/.gnupggrs/ --fingerprint --with-colons | grep fpr | tr -d 'fpr:')
+    fingerprint=$(/opt/Garantir/bin/gpg --homedir $HOME/.gnupggrs/ --fingerprint --with-colons | grep -m 1 fpr | tr -d 'fpr:')
     echo "GNUPGHOME="$GNUPGHOME
     gpg2 --homedir $HOME/.gnupggrs --output ols2i.pub --armor --export $fingerprint
     save_file pub_file ols2i.pub
