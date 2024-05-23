@@ -102,6 +102,7 @@ acceptance-test:
     echo "acceptance-test stage"
     load_file pub_file > ols2i.pub
     gpg2 --import ols2i.pub
+    gpg --fingerprint --with-colons
     export fingerprint=$(gpg --fingerprint --with-colons | grep fpr | tr -d 'fpr:')
     echo "fingerprint=$fingerprint"
     mkdir -p images
