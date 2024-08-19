@@ -35,8 +35,9 @@ To build a simple [jee application](https://github.com/openshift/openshift-jee-s
 using standalone [S2I](https://github.com/openshift/source-to-image) and then run the
 resulting image with [Docker](http://docker.io) execute:
 
+All Open Liberty s2i images are stored on icr.io.  
 ```
-$ s2i build https://github.com/openshift/openshift-jee-sample openliberty/open-liberty-s2i:latest open-liberty-test
+$ s2i build https://github.com/openshift/openshift-jee-sample icr.io/appcafe/open-liberty-s2i:latest open-liberty-test
 $ docker run -p 9080:9080 open-liberty-test
 ```
 
@@ -50,7 +51,7 @@ S2I Runtime Images
 Use the following commands to build and test a lightweight runtime image
 
 ```
-$ s2i build git://github.com/openshift/openshift-jee-sample openliberty/open-liberty-s2i:latest open-liberty-runtime-test --runtime-image openliberty/open-liberty-s2i:20.0.0.12-runtime-java8 --runtime-artifact /opt/ol/wlp/usr/servers/defaultServer/dropins
+$ s2i build git://github.com/openshift/openshift-jee-sample icr.io/appcafe/open-liberty-s2i:latest open-liberty-runtime-test --runtime-image icr.io/appcafe/open-liberty-s2i:20.0.0.12-runtime-java8 --runtime-artifact /opt/ol/wlp/usr/servers/defaultServer/dropins
 $ docker run -p 9080:9080 open-liberty-runtime-test
 ```
 
