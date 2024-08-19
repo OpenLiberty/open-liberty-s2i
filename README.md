@@ -35,7 +35,7 @@ To build a simple [jee application](https://github.com/openshift/openshift-jee-s
 using standalone [S2I](https://github.com/openshift/source-to-image) and then run the
 resulting image with [Docker](http://docker.io) execute:
 
-All Open Liberty s2i images are stored on icr.io.  
+All Open Liberty s2i images are stored on icr.io.  See the [Release Notes](https://github.com/OpenLiberty/open-liberty-s2i/releases) for the available tags.
 ```
 $ s2i build https://github.com/openshift/openshift-jee-sample icr.io/appcafe/open-liberty-s2i:latest open-liberty-test
 $ docker run -p 9080:9080 open-liberty-test
