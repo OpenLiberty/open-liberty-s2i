@@ -7,7 +7,7 @@ description: "Module used to install IBM Semeru Java 21"
 # Defined artifacts that are used to build the image
 artifacts:
   - name: semeru21.tar.gz
-    url: https://github.com/ibmruntimes/semeru21-binaries/releases/download/jdk-21.0.3+9_openj9-0.44.0/ibm-semeru-open-jdk_x64_linux_21.0.3_9_openj9-0.44.0.tar.gz
-    sha256: 5cccb39dc7ca6c61a11bd7179c4c3c30b747f9f22129576feef921b59725af25
+    url: https://github.com/ibmruntimes/semeru21-binaries/releases/download/jdk-21.0.4+7_openj9-0.46.1/ibm-semeru-open-jdk_x64_linux_21.0.4_7_openj9-0.46.1.tar.gz
+    sha256: eaf8a35c50167da06f1e103602df40aac2a74a1fd170f4701b2076152e104e5c
 execute:
   - script: install.sh
