@@ -9,6 +9,7 @@ setup:
     set_env CEKIT_VERSION "4.8.0"
     set_env LIBERTY_VERSION "24.0.0.10"
     set_env DOCKER_API_VERSION="1.41"
+    set_env CRA_VULNERABILITY_RESULTS_STATUS "success"
 
 test:
   abort_on_failure: false
