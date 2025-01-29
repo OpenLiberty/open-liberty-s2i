@@ -14,10 +14,11 @@ setup:
     INVENTORY_ENTRIES_PATH="$WORKSPACE/$(get_env INVENTORY_ENTRIES_PATH)"
     INVENTORY_ENTRIES=$(cat "${INVENTORY_ENTRIES_PATH}")
     echo "$(get_env ibmcloud-api-key-staging)" | docker login "$(get_env staging-registry)"  -u "$(get_env ibmcloud-api-user)" --password-stdin
-    echo "$(get_env ibmcloud-api-key-staging)"
-    docker login "$(get_env staging-registry)" -u "$(get_env ibmcloud-api-user)" -p "$(get_env ibmcloud-api-key-staging)"
+    echo "ENTRIES=$INVENTORY_ENTRIES"
     for INVENTORY_ENTRY in $(echo "${INVENTORY_ENTRIES}" | jq -r '.[] '); do
+      echo "INVENTORY_ENTRY=$INVENTORY_ENTRY"
       APP=$(cat "${INVENTORY_PATH}/${INVENTORY_ENTRY}")
+      echo "APP=$APP"
       ARTIFACT=$(echo "${APP}" | jq -r '.artifact')
       DIGEST=$(echo "${APP}" | jq -r '.sha256' )
 
