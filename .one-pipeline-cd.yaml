@@ -15,7 +15,7 @@ setup:
     INVENTORY_ENTRIES=$(cat "${INVENTORY_ENTRIES_PATH}")
     echo "$(get_env ibmcloud-api-key-staging)" | docker login "$(get_env staging-registry)"  -u "$(get_env ibmcloud-api-user)" --password-stdin
     echo "$(get_env ibmcloud-api-key-staging)"
-    docker login $(get_env staging-registry)" -u "$(get_env ibmcloud-api-user)" -p "$(get_env ibmcloud-api-key-staging)"
+    docker login "$(get_env staging-registry)" -u "$(get_env ibmcloud-api-user)" -p "$(get_env ibmcloud-api-key-staging)"
     for INVENTORY_ENTRY in $(echo "${INVENTORY_ENTRIES}" | jq -r '.[] '); do
       APP=$(cat "${INVENTORY_PATH}/${INVENTORY_ENTRY}")
       ARTIFACT=$(echo "${APP}" | jq -r '.artifact')
