@@ -13,7 +13,7 @@ setup:
 
 test:
   abort_on_failure: false
-  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.71@sha256:26d4304fefd898495faae3f5438c70ec0a5326be6c1fcd34a001323faffbe04f
   script: |
     #!/usr/bin/env bash
     echo "in test"
@@ -28,7 +28,7 @@ test:
 
 static-scan:
   dind: true
-  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.71@sha256:26d4304fefd898495faae3f5438c70ec0a5326be6c1fcd34a001323faffbe04f
   script: |
     #!/usr/bin/env bash
     # scan for open liberty and websphere liberty submodules?
@@ -223,7 +223,7 @@ containerize:
 
 sign-artifact:
   abort_on_failure: false
-  image: icr.io/continuous-delivery/pipeline/image-signing:1.0.0@sha256:e9d8e354668ba3d40be2aaee08298d2aa7f0e1c8a1829cca4094ec93830e3e6a
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.71@sha256:26d4304fefd898495faae3f5438c70ec0a5326be6c1fcd34a001323faffbe04f
   script: |
     #!/usr/bin/env bash
     echo "sign-artifact"
@@ -238,7 +238,7 @@ sign-artifact:
 
 deploy:
   abort_on_failure: true
-  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.71@sha256:26d4304fefd898495faae3f5438c70ec0a5326be6c1fcd34a001323faffbe04f
   script: |
     #!/usr/bin/env bash
     echo "in deploy"
@@ -253,7 +253,7 @@ deploy:
 
 dynamic-scan:
   abort_on_failure: true
-  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.71@sha256:26d4304fefd898495faae3f5438c70ec0a5326be6c1fcd34a001323faffbe04f
   script: |
     #!/usr/bin/env bash
     echo "in dyn scan"
@@ -268,7 +268,7 @@ dynamic-scan:
 
 acceptance-test:
   abort_on_failure: true
-  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.71@sha256:26d4304fefd898495faae3f5438c70ec0a5326be6c1fcd34a001323faffbe04f
   script: |
     #!/usr/bin/env bash
     echo "in setup"
@@ -282,7 +282,7 @@ acceptance-test:
 
 scan-artifact:
   abort_on_failure: false
-  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.15
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.71@sha256:26d4304fefd898495faae3f5438c70ec0a5326be6c1fcd34a001323faffbe04f
   script: |
     #!/usr/bin/env bash
     export PIPELINE_PASSWORD=$(get_env ibmcloud-api-key)
@@ -350,7 +350,7 @@ release:
 owasp-zap-api:
   dind: true
   abort_on_failure: true
-  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.12@sha256:ff4053b0bca784d6d105fee1d008cfb20db206011453071e86b69ca3fde706a4
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.71@sha256:26d4304fefd898495faae3f5438c70ec0a5326be6c1fcd34a001323faffbe04f
   script: |
     #!/usr/bin/env bash
     echo "in owasp"
