@@ -1,7 +1,7 @@
 version: "1"
 
 setup:
-  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.15
+  image: icr.io/continuous-delivery/pipeline/pipeline-base-image:2.71@sha256:26d4304fefd898495faae3f5438c70ec0a5326be6c1fcd34a001323faffbe04f
   script: |
     #!/usr/bin/env bash
 
