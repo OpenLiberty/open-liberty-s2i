@@ -28,9 +28,9 @@ envs:
   - name: S2I_DESTINATION
     value: "/tmp"
   - name: JAVA_HOME
-    value: /usr/local/jdk-21.0.6+7
+    value: /usr/local/jdk-21.0.7+6
   - name: PATH
-    value: /usr/local/jdk-21.0.6+7/bin:$PATH
+    value: /usr/local/jdk-21.0.7+6/bin:$PATH
 
 packages:
     manager: microdnf
