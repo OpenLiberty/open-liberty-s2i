@@ -13,7 +13,7 @@
         "annotations": {
           "description": "Build and run Open Liberty applications on Red Hat Universal Base Image 8. For more information about using this builder image, including OpenShift considerations, see https://github.com/OpenLiberty/open-liberty-s2i/blob/main/README.md.",
           "iconClass": "icon-openliberty",
-          "openshift.io/display-name": "Open Liberty 25.0.0.7 with Java 8",
+          "openshift.io/display-name": "Open Liberty 25.0.0.8 with Java 8",
           "openshift.io/provider-display-name": "IBM",
           "sampleRepo": "https://github.com/openshift/openshift-jee-sample.git",
           "supports": "jee,java",
@@ -21,18 +21,18 @@
         },
         "from": {
           "kind": "DockerImage",
-          "name": "docker.io/openliberty/open-liberty-s2i:25.0.0.7-java8"
+          "name": "docker.io/openliberty/open-liberty-s2i:25.0.0.8-java8"
         },
         "referencePolicy": {
           "type": "Local"
         },
-        "name": "25.0.0.7-java8"
+        "name": "25.0.0.8-java8"
       },
       {
         "annotations": {
           "description": "Build and run Open Liberty applications on Red Hat Universal Base Image 8. For more information about using this builder image, including OpenShift considerations, see https://github.com/OpenLiberty/open-liberty-s2i/blob/main/README.md.",
           "iconClass": "icon-openliberty",
-          "openshift.io/display-name": "Open Liberty 25.0.0.7 with Java 11",
+          "openshift.io/display-name": "Open Liberty 25.0.0.8 with Java 11",
           "openshift.io/provider-display-name": "IBM",
           "sampleRepo": "https://github.com/openshift/openshift-jee-sample.git",
           "supports": "jee,java",
@@ -40,18 +40,18 @@
         },
         "from": {
           "kind": "DockerImage",
-          "name": "docker.io/openliberty/open-liberty-s2i:25.0.0.7-java11"
+          "name": "docker.io/openliberty/open-liberty-s2i:25.0.0.8-java11"
         },
         "referencePolicy": {
           "type": "Local"
         },
-        "name": "25.0.0.7-java11"
+        "name": "25.0.0.8-java11"
       },
       {
         "annotations": {
           "description": "Build and run Open Liberty applications on Red Hat Universal Base Image 8. For more information about using this builder image, including OpenShift considerations, see https://github.com/OpenLiberty/open-liberty-s2i/blob/main/README.md.",
           "iconClass": "icon-openliberty",
-          "openshift.io/display-name": "Open Liberty 25.0.0.7 with Java 17",
+          "openshift.io/display-name": "Open Liberty 25.0.0.8 with Java 17",
           "openshift.io/provider-display-name": "IBM",
           "sampleRepo": "https://github.com/openshift/openshift-jee-sample.git",
           "supports": "jee,java",
@@ -59,18 +59,18 @@
         },
         "from": {
           "kind": "DockerImage",
-          "name": "docker.io/openliberty/open-liberty-s2i:25.0.0.7-java17"
+          "name": "docker.io/openliberty/open-liberty-s2i:25.0.0.8-java17"
         },
         "referencePolicy": {
           "type": "Local"
         },
-        "name": "25.0.0.7-java17"
+        "name": "25.0.0.8-java17"
       },
       {
         "annotations": {
           "description": "Build and run Open Liberty applications on Red Hat Universal Base Image 8. For more information about using this builder image, including OpenShift considerations, see https://github.com/OpenLiberty/open-liberty-s2i/blob/main/README.md.",
           "iconClass": "icon-openliberty",
-          "openshift.io/display-name": "Open Liberty 25.0.0.7 with Java 21",
+          "openshift.io/display-name": "Open Liberty 25.0.0.8 with Java 21",
           "openshift.io/provider-display-name": "IBM",
           "sampleRepo": "https://github.com/openshift/openshift-jee-sample.git",
           "supports": "jee,java",
@@ -78,12 +78,12 @@
         },
         "from": {
           "kind": "DockerImage",
-          "name": "docker.io/openliberty/open-liberty-s2i:25.0.0.7-java21"
+          "name": "docker.io/openliberty/open-liberty-s2i:25.0.0.8-java21"
         },
         "referencePolicy": {
           "type": "Local"
         },
-        "name": "25.0.0.7-java21"
+        "name": "25.0.0.8-java21"
       }
     ]
   }
