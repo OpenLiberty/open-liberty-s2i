@@ -21,7 +21,7 @@
         },
         "from": {
           "kind": "DockerImage",
-          "name": "docker.io/openliberty/open-liberty-s2i:25.0.0.8-java8"
+          "name": "icr.io/appcafe/open-liberty-s2i:25.0.0.8-java8"
         },
         "referencePolicy": {
           "type": "Local"
@@ -40,7 +40,7 @@
         },
         "from": {
           "kind": "DockerImage",
-          "name": "docker.io/openliberty/open-liberty-s2i:25.0.0.8-java11"
+          "name": "icr.io/appcafe/open-liberty-s2i:25.0.0.8-java11"
         },
         "referencePolicy": {
           "type": "Local"
@@ -59,7 +59,7 @@
         },
         "from": {
           "kind": "DockerImage",
-          "name": "docker.io/openliberty/open-liberty-s2i:25.0.0.8-java17"
+          "name": "icr.io/appcafe/open-liberty-s2i:25.0.0.8-java17"
         },
         "referencePolicy": {
           "type": "Local"
@@ -78,7 +78,7 @@
         },
         "from": {
           "kind": "DockerImage",
-          "name": "docker.io/openliberty/open-liberty-s2i:25.0.0.8-java21"
+          "name": "icr.io/appcafe/open-liberty-s2i:25.0.0.8-java21"
         },
         "referencePolicy": {
           "type": "Local"
