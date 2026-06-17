@@ -199,7 +199,7 @@ containerize:
     for i in "${tags[@]}"
     do
       IMAGE=$PIPELINE_REGISTRY/$NAMESPACE/$PIPELINE_S2I_IMAGE:$i
-      DIGEST="$(skopeo inspect docker://$IMAGE | grep Digest | grep -o 'sha[^\"\n]*')"
+      DIGEST="$(skopeo inspect docker://$IMAGE | grep Digest | grep -o 'sha[^[:space:]]*')"
       echo "Saving artifact s2i-$i name=$IMAGE digest=$DIGEST type=$TYPE"
       save_artifact s2i-$i type="image" name="$IMAGE" "digest=$DIGEST" arch="amd64"
     done
