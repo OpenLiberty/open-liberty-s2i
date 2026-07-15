@@ -1,11 +1,17 @@
 #!/bin/bash -e
 SCRIPT_DIR=$(dirname $0)
 export DOCKER_API_VERSION="1.41"
+export DOCKER_TIMEOUT="1200"
 
 JAVA8_BASE_IMAGE_NAME="${NAMESPACE:=icr.io}/appcafe/open-liberty:${LIBERTY_VERSION}-full-java8-openj9-ubi"
 JAVA11_BASE_IMAGE_NAME="${NAMESPACE:=icr.io}/appcafe/open-liberty:${LIBERTY_VERSION}-full-java11-openj9-ubi"
 JAVA17_BASE_IMAGE_NAME="${NAMESPACE:=icr.io}/appcafe/open-liberty:${LIBERTY_VERSION}-full-java17-openj9-ubi"
 JAVA21_BASE_IMAGE_NAME="${NAMESPACE:=icr.io}/appcafe/open-liberty:${LIBERTY_VERSION}-full-java21-openj9-ubi-minimal"
+
+docker pull ${JAVA8_BASE_IMAGE_NAME}
+docker pull ${JAVA11_BASE_IMAGE_NAME}
+docker pull ${JAVA17_BASE_IMAGE_NAME}
+docker pull ${JAVA21_BASE_IMAGE_NAME}
 
 echo "Temp fix to add maven to cekit cache because module is not downloading in 1Pipeline" 
 cekit-cache add ${SCRIPT_DIR}/maven/maven.tar.gz --sha512 332088670d14fa9ff346e6858ca0acca304666596fec86eea89253bd496d3c90deae2be5091be199f48e09d46cec817c6419d5161fb4ee37871503f472765d00
