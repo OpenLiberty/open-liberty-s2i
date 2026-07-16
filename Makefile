@@ -35,4 +35,4 @@ build:
 
 .PHONY: test
 test:
-	$(script_env) TEST_MODE=false $(build)
+	$(script_env) $(build)
