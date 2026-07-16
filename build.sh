@@ -19,14 +19,12 @@ cekit-cache add ${SCRIPT_DIR}/maven/maven.tar.gz --sha512 332088670d14fa9ff346e6
 
 echo "Building Java 8 Builder Image ${JAVA8_BASE_IMAGE_NAME}"
 pushd ${SCRIPT_DIR}/images/java8/builder
-cekit build --overrides '{"from": "'"${JAVA8_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA8_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
+cekit build --no-squash --overrides '{"from": "'"${JAVA8_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA8_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
 popd
 
 echo "Building Java 8 Runtime Image"
 pushd ${SCRIPT_DIR}/images/java8/runtime
 cekit build --overrides '{"from": "'"${JAVA8_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA8_RUNTIME_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
-docker buildx ls
-docker info | grep -i buildkit
 popd
 
 # Test Java 8 image if TEST_MODE is set
@@ -37,12 +35,12 @@ fi
 
 echo "Building Java 11 Builder Image"
 pushd ${SCRIPT_DIR}/images/java11/builder
-cekit build --overrides '{"from": "'"${JAVA11_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA11_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
+cekit build --no-squash --overrides '{"from": "'"${JAVA11_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA11_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
 popd
 
 echo "Building Java 11 Runtime Image"
 pushd ${SCRIPT_DIR}/images/java11/runtime
-cekit build --overrides '{"from": "'"${JAVA11_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA11_RUNTIME_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
+cekit build --no-squash --overrides '{"from": "'"${JAVA11_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA11_RUNTIME_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
 popd
 
 # Test Java 11 image if TEST_MODE is set
@@ -53,12 +51,12 @@ fi
 
 echo "Building Java 17 Builder Image"
 pushd ${SCRIPT_DIR}/images/java17/builder
-cekit build --overrides '{"from": "'"${JAVA17_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA17_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
+cekit build --no-squash --overrides '{"from": "'"${JAVA17_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA17_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
 popd
 
 echo "Building Java 17 Runtime Image"
 pushd ${SCRIPT_DIR}/images/java17/runtime
-cekit build --overrides '{"from": "'"${JAVA17_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA17_RUNTIME_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
+cekit build --no-squash --overrides '{"from": "'"${JAVA17_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA17_RUNTIME_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
 popd
 
 # Test Java 17 image if TEST_MODE is set
@@ -69,12 +67,12 @@ fi
 
 echo "Building Java 21 Builder Image"
 pushd ${SCRIPT_DIR}/images/java21/builder
-cekit build --overrides '{"from": "'"${JAVA21_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA21_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
+cekit build --no-squash --overrides '{"from": "'"${JAVA21_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA21_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
 popd
 
 echo "Building Java 21 Runtime Image"
 pushd ${SCRIPT_DIR}/images/java21/runtime
-cekit build --overrides '{"from": "'"${JAVA21_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA21_RUNTIME_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
+cekit build --no-squash --overrides '{"from": "'"${JAVA21_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA21_RUNTIME_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
 popd
 
 # Test Java 21 image if TEST_MODE is set
