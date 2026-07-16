@@ -2,6 +2,7 @@
 SCRIPT_DIR=$(dirname $0)
 export DOCKER_API_VERSION="1.41"
 export DOCKER_TIMEOUT="1200"
+export DOCKER_BUILDKIT=0
 
 JAVA8_BASE_IMAGE_NAME="${NAMESPACE:=icr.io}/appcafe/open-liberty:${LIBERTY_VERSION}-full-java8-openj9-ubi"
 JAVA11_BASE_IMAGE_NAME="${NAMESPACE:=icr.io}/appcafe/open-liberty:${LIBERTY_VERSION}-full-java11-openj9-ubi"
