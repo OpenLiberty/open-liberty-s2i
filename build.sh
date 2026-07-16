@@ -25,6 +25,8 @@ popd
 echo "Building Java 8 Runtime Image"
 pushd ${SCRIPT_DIR}/images/java8/runtime
 cekit build --overrides '{"from": "'"${JAVA8_BASE_IMAGE_NAME}"'"}' --overrides '{"version": "'"${JAVA8_RUNTIME_IMAGE_VERSION}"'"}' --overrides '{"name": "'"${PROD_NAMESPACE:=openliberty}/open-liberty-s2i"'"}' docker
+docker buildx ls
+docker info | grep -i buildkit
 popd
 
 # Test Java 8 image if TEST_MODE is set
